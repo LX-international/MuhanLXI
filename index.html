@@ -60,25 +60,14 @@ p, span, div, button, label, h1, h2, h3{
 .caption-text{
   color:#fff;
   font-weight:400;
-  text-shadow:
-    -2px -2px 0 var(--ink), 2px -2px 0 var(--ink), -2px 2px 0 var(--ink), 2px 2px 0 var(--ink),
-    0 -2px 0 var(--ink), 0 2px 0 var(--ink), -2px 0 0 var(--ink), 2px 0 0 var(--ink),
-    5px 5px 0 rgba(0,0,0,0.35);
   letter-spacing:0.5px;
   word-break:keep-all;
   line-height:1.35;
 }
 .caption-text.dark{
   color:var(--ink);
-  text-shadow:
-    -2px -2px 0 #fff, 2px -2px 0 #fff, -2px 2px 0 #fff, 2px 2px 0 #fff,
-    0 -2px 0 #fff, 0 2px 0 #fff, -2px 0 0 #fff, 2px 0 0 #fff,
-    4px 4px 0 rgba(0,0,0,0.15);
 }
-.hl{ color:var(--yellow); text-shadow:
-    -2px -2px 0 var(--ink), 2px -2px 0 var(--ink), -2px 2px 0 var(--ink), 2px 2px 0 var(--ink),
-    0 -2px 0 var(--ink), 0 2px 0 var(--ink), -2px 0 0 var(--ink), 2px 0 0 var(--ink);
-}
+.hl{ color:var(--yellow); }
 .bang{ display:inline-block; font-size:1.7em; transform:scale(1.1) rotate(-4deg); }
 
 /* ---------- speed lines / shake lines ---------- */
@@ -493,7 +482,7 @@ const MISSIONS = [
 const INTRO_LINES = [
   "드디어 입사했다!",
   "무한LXI상사...",
-  "세계 곳곳을 누비며 인류에게 필요한 자원을 공급하고,\n고객의 문제를 해결하는 글로벌 종합상사.",
+  "세계 곳곳을 누비며\n인류에게 필요한 자원을 공급하고,\n고객의 문제를 해결하는 글로벌 종합상사.",
   "언젠가 나도 해외를 오가며 일하는\n멋진 상사맨이 되고 싶었는데...",
   "좋아!\n오늘부터 제대로 한번 해보자!",
 ];
@@ -520,8 +509,15 @@ function StarBurst({ children, color = "red", className = "" }){
     </div>
   );
 }
-function CloudTag({ children, className = "" }){
-  return <div className={`cloud-tag ${className}`}><span style={{fontSize:14}}>{children}</span></div>;
+function CloudTag({ children, className = "", transparent = false }){
+  return (
+    <div
+      className={`cloud-tag ${className}`}
+      style={transparent ? { background: "transparent", borderColor: "transparent", padding: 0, color: "#fff" } : undefined}
+    >
+      <span style={{ fontSize: 14 }}>{children}</span>
+    </div>
+  );
 }
 function RoundBox({ children, dark = false, className = "" }){
   return (
@@ -707,14 +703,14 @@ function TitleScreen({ onStart }){
     <div className="screen scene-fade" style={{ background: "linear-gradient(180deg,#dfe9f5,#aebedb)", alignItems: "center", textAlign: "center", justifyContent: "space-between" }}>
       <img src={LXI_LOGO} alt="무한LXI상사" style={{ width: "45%", maxWidth: 170, display: "block" }} draggable="false" />
       <RexCharacter src={NEW_SUIT_REX} size={230} />
-      <div>
+      <div style={{ background: "transparent" }}>
         <h1 className="tilt" style={{ margin: "6px 0" }}>
           <span className="caption-text" style={{ fontSize: 26 }}>출근 준비<span className="bang">!</span></span>
         </h1>
         <h2 className="tilt-r" style={{ margin: "0 0 10px" }}>
           <span className="caption-text" style={{ fontSize: 24 }}>상사맨 렉스 꾸미기</span>
         </h2>
-        <CloudTag>오늘도 무슨 일이 터질지 아무도 모른다!</CloudTag>
+        <CloudTag transparent>오늘도 무슨 일이 터질지 아무도 모른다!</CloudTag>
       </div>
       <button className="btn btn-primary" style={{ width: "100%" }} onClick={onStart} aria-label="게임 시작">
         게임 시작
@@ -772,21 +768,21 @@ function MissionCardDraw({ mission, onNext }){
             className="card3d-face card3d-front"
             style={{
               display: "flex", justifyContent: "center", alignItems: "center",
-              padding: 16, flexDirection: "column",
+              padding: 16, flexDirection: "column", gap: 12,
               backgroundImage: `url(${MIMG.MISSION_CARD_BG})`,
               backgroundSize: "cover", backgroundPosition: "center",
             }}
           >
+            <div style={{ width: "100%", flex: 1, display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center", gap: 12 }}>
               {mission.cardImage ? (
-              <img
-                src={mission.cardImage}
-                alt={mission.title}
-                style={{ width: "100%", height: 120, borderRadius: 10, objectFit: "cover", marginBottom: 10 }}
-                draggable="false"
-              />
-            ) : null}
-            <div style={{ flex: 1, display: "flex", flexDirection: "column", justifyContent: "center", gap: 10 }}>
-              <span className="caption-text dark" style={{ fontSize: 19 }}>{mission.title}</span>
+                <img
+                  src={mission.cardImage}
+                  alt={mission.title}
+                  style={{ width: "78%", maxWidth: 140, height: 120, borderRadius: 10, objectFit: "contain", display: "block" }}
+                  draggable="false"
+                />
+              ) : null}
+              <span className="caption-text dark" style={{ fontSize: 19, textAlign: "center", lineHeight: 1.3 }}>{mission.title}</span>
             </div>
           </div>
         </div>
@@ -952,9 +948,25 @@ function ConfirmModal({ outfit, onConfirm, onCancel }){
 /* ============================================================
    결과 장면 공통 래퍼
    ============================================================ */
-function StoryScene({ bgGrad, children, onNext, nextLabel = "다음" }){
+function StoryScene({ bgGrad, children, onNext, nextLabel = "다음", backgroundImage = null, backgroundStyle = {} }){
   return (
-    <div className="screen scene-fade" style={{ background: bgGrad, justifyContent: "space-between", alignItems: "center", textAlign: "center", minHeight: "100svh" }}>
+    <div
+      className="screen scene-fade"
+      style={{
+        background: bgGrad,
+        justifyContent: "space-between",
+        alignItems: "center",
+        textAlign: "center",
+        minHeight: "100svh",
+        ...(backgroundImage ? {
+          backgroundImage: `url(${backgroundImage})`,
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+          backgroundRepeat: "no-repeat",
+          ...backgroundStyle,
+        } : {}),
+      }}
+    >
       <TopLogo size={48} />
       <div style={{ flex: 1, display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center", gap: 16, width: "100%" }}>
         {children}
@@ -1033,7 +1045,7 @@ function Story3({ name, mission, onNext }){
 /* 결과4: 분위기 역전 */
 function Story4({ name, mission, outfit, onNext }){
   return (
-    <StoryScene bgGrad={mission.bgGrad} onNext={onNext} nextLabel="다음">
+    <StoryScene bgGrad={mission.bgGrad} onNext={onNext} nextLabel="다음" backgroundImage="logo/어서오세요.png">
       <div style={{ transform: "rotate(0deg)" }}>
         <RexCharacter src={IMG.BOSS_REX_1} size={140} />
       </div>
@@ -1042,7 +1054,11 @@ function Story4({ name, mission, outfit, onNext }){
         <CloudTag>앞으로 잘 부탁드립니다!</CloudTag>
         <CloudTag>역시 보는 눈이 있으셨습니다!</CloudTag>
       </div>
-      <RoundBox>90도 인사 장착 완료 🙇</RoundBox>
+      <div style={{ position: "relative", width: "100%", display: "flex", justifyContent: "center", minHeight: 140, borderRadius: 18, overflow: "hidden" }}>
+        <div style={{ position: "relative", zIndex: 1, width: "100%", display: "flex", justifyContent: "center", alignItems: "center", padding: 18 }}>
+          <RoundBox>90도 인사 장착 완료 🙇</RoundBox>
+        </div>
+      </div>
       <StarBurst color="yellow">
         <span style={{ whiteSpace: "pre-line" }}>(두근){"\n"}내가 알고 보니{"\n"}숨겨진 인재…?!</span>
       </StarBurst>
@@ -1087,7 +1103,7 @@ function FinalScreen({ name, onRestart }){
       <TopLogo size={56} />
       <div ref={captureRef} style={{ width: "100%", padding: "18px 10px", background: "linear-gradient(180deg,#fff7d6,#ffe9a8)", borderRadius: 18 }}>
         <div className="tilt">
-          <span className="caption-text" style={{ fontSize: 26 }}>상사맨 성장 완료<span className="bang">!</span></span>
+          <span className="caption-text" style={{ fontSize: 26, color: "#111" }}>상사맨 성장 완료<span className="bang">!</span></span>
         </div>
         <div style={{ position: "relative", display: "inline-block", marginTop: 10 }}>
           <RexCharacter src={NEW_SUIT_REX} mood="sparkle" size={210} />
@@ -1100,22 +1116,21 @@ function FinalScreen({ name, onRestart }){
         <p style={{ fontSize: 15, color: "#333", margin: "12px 0", whiteSpace: "pre-line" }}>
           {withName("완벽한 센스로\nLX인터내셔널의 글로벌 미래를 이끌어갈 준비가 된 당신!\n\n멋진 상사맨으로 성장할 자격이 충분합니다.", name)}
         </p>
-        <div style={{ display: "flex", gap: 8, justifyContent: "center", flexWrap: "wrap", marginBottom: 4 }}>
-          <CloudTag>상사력 +100</CloudTag>
-          <CloudTag>센스력 +100</CloudTag>
-          <CloudTag>글로벌 패기 MAX</CloudTag>
+        <div style={{ width: "100%", border: "3px dashed var(--blue)", borderRadius: 14, padding: 14, background: "#fff", marginTop: 8 }}>
+        <p style={{ margin: "0 0 6px", fontWeight: 700, color: "#333" }}>🎟️ 행운의 복권 교환권</p>
+        <div style={{ height: 90, borderRadius: 10, background: "linear-gradient(135deg,#fff7d6,#ffe082)", border: "2px solid #d8a300", position: "relative", overflow: "hidden", display: "flex", alignItems: "center", justifyContent: "center" }}>
+          <div style={{ position: "absolute", inset: 0, background: "repeating-linear-gradient(45deg, rgba(0,0,0,0.04) 0 8px, rgba(255,255,255,0.4) 8px 16px)", pointerEvents: "none" }} />
+          <div style={{ position: "relative", textAlign: "center", color: "#6b3f00", fontWeight: 700, lineHeight: 1.4 }}>
+            <div style={{ fontSize: 15 }}>행운의 복권</div>
+            <div style={{ fontSize: 13, marginTop: 4 }}>스크래치 영역</div>
+            <div style={{ fontSize: 11, marginTop: 6, opacity: 0.9 }}>당첨 시 교환 가능</div>
+          </div>
         </div>
       </div>
-
-      <div style={{ width: "100%", border: "3px dashed var(--blue)", borderRadius: 14, padding: 14, background: "#fff" }}>
-        <p style={{ margin: "0 0 6px", fontWeight: 700, color: "#333" }}>🎟️ 기념품 교환권</p>
-        {/* placeholder: 실제 복권/스크래치 쿠폰 이미지로 교체 예정 (/public/images/coupon.png) */}
-        <div style={{ height: 70, background: "repeating-linear-gradient(45deg,#eee,#eee 10px,#ddd 10px,#ddd 20px)", borderRadius: 8 }} />
+        <p style={{ fontSize: 13, color: "#555", margin: "12px 0 0" }}>
+          이 완료 화면을 LX인터내셔널 리크루팅 부스 담당자에게 보여주시면 기념품을 드립니다!
+        </p>
       </div>
-
-      <p style={{ fontSize: 13, color: "#555" }}>
-        이 완료 화면을 LX인터내셔널 리크루팅 부스 담당자에게 보여주시면 기념품을 드립니다!
-      </p>
 
       <div style={{ display: "flex", gap: 10, width: "100%" }}>
         <button className="btn btn-secondary" style={{ flex: 1 }} onClick={handleSave} disabled={isSaving} aria-label="화면 저장">
