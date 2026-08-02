@@ -1054,14 +1054,14 @@ function Story4({ name, mission, outfit, onNext }){
         <CloudTag>앞으로 잘 부탁드립니다!</CloudTag>
         <CloudTag>역시 보는 눈이 있으셨습니다!</CloudTag>
       </div>
-      <div style={{ position: "relative", width: "100%", display: "flex", justifyContent: "center", minHeight: 140, borderRadius: 18, overflow: "hidden" }}>
-        <div style={{ position: "relative", zIndex: 1, width: "100%", display: "flex", justifyContent: "center", alignItems: "center", padding: 18 }}>
-          <RoundBox>90도 인사 장착 완료 🙇</RoundBox>
-        </div>
+      <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 12, paddingRight: 10 }}>
+        <img
+          src="logo/내가 알고 보니 숨겨진 인재.png"
+          alt="내가 알고 보니 숨겨진 인재"
+          style={{ width: "76%", maxWidth: 240, objectFit: "contain" }}
+          draggable="false"
+        />
       </div>
-      <StarBurst color="yellow">
-        <span style={{ whiteSpace: "pre-line" }}>(두근){"\n"}내가 알고 보니{"\n"}숨겨진 인재…?!</span>
-      </StarBurst>
     </StoryScene>
   );
 }
