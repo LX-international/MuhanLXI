@@ -170,8 +170,14 @@ p, span, div, button, label, h1, h2, h3{
 .btn:focus-visible{ outline:3px solid var(--blue); outline-offset:2px; }
 
 /* ---------- fade/scene transition ---------- */
-.scene-fade{ animation: fadein .3s ease; }
-@keyframes fadein{ from{opacity:0; transform:translateY(8px);} to{opacity:1; transform:translateY(0);} }
+.scene-fade{
+  animation: fadein .35s cubic-bezier(.2,.8,.2,1);
+  will-change: opacity, transform;
+}
+@keyframes fadein{
+  from{ opacity:0; transform:translateY(6px) scale(0.985); }
+  to{ opacity:1; transform:translateY(0) scale(1); }
+}
 
 .screen{
   flex:1;
@@ -592,12 +598,75 @@ function RexCharacter({ src, mood, outfit, size = 260, showOutfitBadges = true }
    ============================================================ */
 function StartScreen({ onStart }){
   return (
-    <div className="screen scene-fade" style={{ background: "#111", color: "#fff", justifyContent: "center", alignItems: "center", textAlign: "center", gap: 22 }}>
-      <img src={LXI_LOGO} alt="무한LXI상사" style={{ width: "70%", maxWidth: 260, display: "block" }} draggable="false" />
-      <RexCharacter src={NEW_SUIT_REX} size={200} />
-      <p style={{ color: "#ddd", fontSize: 15, margin: 0 }}>신입사원 출근 준비 미니게임</p>
-      <button className="btn btn-primary" style={{ width: "70%", fontSize: 20 }} onClick={onStart} aria-label="게임 시작하기">
-        게임 시작
+    <div
+      className="screen scene-fade"
+      style={{
+        position: "relative",
+        backgroundImage: 'url("intro/start_background.svg")',
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+        backgroundRepeat: "no-repeat",
+        overflow: "hidden",
+        padding: 0,
+      }}
+    >
+      <img
+        src="logo/lex.svg"
+        alt="렉스 로고"
+        draggable="false"
+        style={{
+          position: "absolute",
+          left: "50%",
+          bottom: 196,
+          transform: "translateX(-50%)",
+          display: "block",
+          width: "auto",
+          height: "auto",
+          maxWidth: "94%",
+          zIndex: 2,
+        }}
+      />
+      <img
+        src="logo/logo.svg"
+        alt="무한LXI상사 로고"
+        draggable="false"
+        style={{
+          position: "absolute",
+          left: "50%",
+          top: 78,
+          transform: "translateX(-50%)",
+          display: "block",
+          width: "auto",
+          height: "auto",
+          maxWidth: "74%",
+          zIndex: 2,
+        }}
+      />
+      <button
+        type="button"
+        onClick={onStart}
+        aria-label="게임 시작하기"
+        style={{
+          position: "absolute",
+          left: "50%",
+          bottom: 10,
+          transform: "translateX(-50%)",
+          border: "none",
+          background: "transparent",
+          padding: 0,
+          cursor: "pointer",
+          zIndex: 2,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+      >
+        <img
+          src="intro/btn_start.svg"
+          alt=""
+          draggable="false"
+          style={{ display: "block", maxWidth: "140%", width: "auto", height: "auto" }}
+        />
       </button>
     </div>
   );
@@ -608,7 +677,8 @@ function StartScreen({ onStart }){
    ============================================================ */
 function IntroNarration({ onFinish }){
   const [idx, setIdx] = useState(0);
-  const isLast = idx >= INTRO_LINES.length - 1;
+  const introImages = ["intro/intro_1.svg", "intro/intro_2.svg", "intro/intro_3.svg", "intro/intro_4.svg", "intro/intro_5.svg"];
+  const isLast = idx >= introImages.length - 1;
 
   const advance = useCallback(() => {
     if (isLast){
@@ -620,21 +690,53 @@ function IntroNarration({ onFinish }){
 
   return (
     <div
-      className="screen"
-      style={{ background: "#000", color: "#fff", justifyContent: "center", alignItems: "center", textAlign: "center", gap: 28 }}
+      className="screen scene-fade"
+      style={{
+        position: "relative",
+        backgroundImage: `url(${introImages[idx]})`,
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+        backgroundRepeat: "no-repeat",
+        padding: 0,
+        overflow: "hidden",
+      }}
     >
-      <div key={idx} className="skip-fade-enter" style={{ padding: "0 8px" }}>
-        <p className="caption-text" style={{ fontSize: 22, whiteSpace: "pre-line" }}>
-          {INTRO_LINES[idx]}
-        </p>
-      </div>
       <button
-        className="btn btn-primary"
-        style={{ width: "70%" }}
+        type="button"
         onClick={advance}
-        aria-label={isLast ? "다음 화면으로 넘어가기" : "다음 문장으로 넘어가기"}
+        aria-label="넘어가기"
+        style={{
+          position: "absolute",
+          left: "50%",
+          bottom: 34,
+          transform: "translateX(-50%)",
+          width: 363,
+          height: 44,
+          borderRadius: 10,
+          border: "2px solid #000",
+          background: "#FFB808",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          padding: 0,
+          cursor: "pointer",
+          zIndex: 2,
+        }}
       >
-        넘어가기
+        <span
+          style={{
+            color: "#000",
+            textAlign: "center",
+            fontFamily: "Inter",
+            fontSize: 16,
+            fontStyle: "normal",
+            fontWeight: 700,
+            lineHeight: "normal",
+            letterSpacing: "-0.8px",
+          }}
+        >
+          넘어가기
+        </span>
       </button>
     </div>
   );
@@ -643,6 +745,19 @@ function IntroNarration({ onFinish }){
 /* ============================================================
    화면 2. 사원이름 입력
    ============================================================ */
+function NameWarnPopup({ onDone }){
+  useEffect(() => {
+    const t = setTimeout(() => onDone && onDone(), 1500);
+    return () => clearTimeout(t);
+  }, [onDone]);
+
+  return (
+    <div className="toast-popup" role="status" aria-live="polite">
+      <img src="name/noName.svg" alt="이름을 입력해 주세요" style={{ display: "block", width: "auto", height: "auto" }} />
+    </div>
+  );
+}
+
 function NameInputScreen({ name, setName, onSubmit }){
   const [draft, setDraft] = useState(name || "");
   const [showWarn, setShowWarn] = useState(false);
@@ -662,78 +777,169 @@ function NameInputScreen({ name, setName, onSubmit }){
     <div
       className="screen scene-fade"
       style={{
-        alignItems: "center", textAlign: "center", gap: 18, justifyContent: "flex-start",
-        backgroundImage: `url(${MIMG.MISSION_CARD_BG})`, backgroundSize: "cover", backgroundPosition: "center",
+        position: "relative",
+        backgroundImage: 'url("name/name.svg")',
+        backgroundColor: "#fff",
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+        backgroundRepeat: "no-repeat",
+        padding: 0,
+        overflow: "hidden",
       }}
     >
-      <img src={LXI_LOGO} alt="무한LXI상사" style={{ width: "62%", maxWidth: 220, display: "block", marginTop: 4 }} draggable="false" />
-      <h1 className="tilt" style={{ margin: "0" }}>
-        <span className="caption-text dark" style={{ fontSize: 22 }}>신입사원 등록</span>
-      </h1>
-      <RexCharacter src={NEW_SUIT_REX} size={210} />
-      <div style={{ width: "100%", textAlign: "left" }}>
-        <label htmlFor="employeeName" style={{ fontSize: 15, color: "#333", display: "block", marginBottom: 6 }}>사원이름</label>
-        <input
-          id="employeeName"
-          ref={inputRef}
-          type="text"
-          maxLength={10}
-          value={draft}
-          placeholder="이름을 입력해주세요"
-          onChange={(e) => setDraft(e.target.value)}
-          onKeyDown={(e) => { if (e.key === "Enter") handleSubmit(); }}
-          aria-label="사원이름 입력"
-        />
-      </div>
-      <button className="btn btn-primary" style={{ width: "100%", marginTop: 6 }} onClick={handleSubmit} aria-label="입사 등록 완료">
-        입사 등록 완료
-      </button>
-      {showWarn && (
-        <VarietyCaption keyId="name-warn" text="잠깐! 이름부터 알려줘야지!" onDone={() => setShowWarn(false)} />
-      )}
-    </div>
-  );
-}
-
-/* ============================================================
-   화면 3. 게임 타이틀
-   ============================================================ */
-function TitleScreen({ onStart }){
-  return (
-    <div className="screen scene-fade" style={{ background: "linear-gradient(180deg,#dfe9f5,#aebedb)", alignItems: "center", textAlign: "center", justifyContent: "space-between" }}>
-      <img src={LXI_LOGO} alt="무한LXI상사" style={{ width: "45%", maxWidth: 170, display: "block" }} draggable="false" />
-      <RexCharacter src={NEW_SUIT_REX} size={230} />
-      <div style={{ background: "transparent" }}>
-        <h1 className="tilt" style={{ margin: "6px 0" }}>
-          <span className="caption-text" style={{ fontSize: 26 }}>출근 준비<span className="bang">!</span></span>
-        </h1>
-        <h2 className="tilt-r" style={{ margin: "0 0 10px" }}>
-          <span className="caption-text" style={{ fontSize: 24 }}>상사맨 렉스 꾸미기</span>
-        </h2>
-        <CloudTag transparent>오늘도 무슨 일이 터질지 아무도 모른다!</CloudTag>
-      </div>
-      <button className="btn btn-primary" style={{ width: "100%" }} onClick={onStart} aria-label="게임 시작">
-        게임 시작
-      </button>
-    </div>
-  );
-}
-
-/* ============================================================
-   화면 4. 미션 안내
-   ============================================================ */
-function MissionIntroScreen({ name, onDraw }){
-  return (
-    <div className="screen scene-fade" style={{ alignItems: "center", textAlign: "center", justifyContent: "center", gap: 20 }}>
-      <TopLogo />
-      <RexCharacter src={IMG.BOSS_REX_1} size={190} />
-      <RoundBox>
-        <span style={{ whiteSpace: "pre-line" }}>
-          {withName(`어이, [사원이름] 신입!\n무한LXI상사에 온 걸 환영한다.\n\n오늘 어떤 글로벌 업무가 터질지 모르니\n마음 단단히 먹고 미션 카드를 뽑아봐!`, name)}
+      <img
+        src="logo/lex.svg"
+        alt="렉스 로고"
+        draggable="false"
+        style={{
+          position: "absolute",
+          left: "50%",
+          bottom: 196,
+          transform: "translateX(-50%)",
+          display: "block",
+          width: "auto",
+          height: "auto",
+          maxWidth: "110%",
+          zIndex: 2,
+        }}
+      />
+      <img
+        src="logo/logo.svg"
+        alt="무한LXI상사 로고"
+        draggable="false"
+        style={{
+          position: "absolute",
+          left: "50%",
+          top: 79,
+          transform: "translateX(-50%)",
+          display: "block",
+          width: "auto",
+          height: "auto",
+          maxWidth: "74%",
+          zIndex: 2,
+        }}
+      />
+      <input
+        id="employeeName"
+        ref={inputRef}
+        type="text"
+        maxLength={10}
+        value={draft}
+        placeholder="이름을 입력해주세요"
+        onChange={(e) => setDraft(e.target.value)}
+        onKeyDown={(e) => { if (e.key === "Enter") handleSubmit(); }}
+        aria-label="사원이름 입력"
+        style={{
+          position: "absolute",
+          left: "50%",
+          bottom: 87,
+          transform: "translateX(-50%)",
+          width: 330,
+          height: 66,
+          borderRadius: 16,
+          border: "3px solid #000",
+          background: "#FFF",
+          padding: "0 14px",
+          fontFamily: "Jua, sans-serif",
+          fontSize: 18,
+          zIndex: 2,
+        }}
+      />
+      <button
+        type="button"
+        onClick={handleSubmit}
+        aria-label="입사 등록 완료"
+        style={{
+          position: "absolute",
+          left: "50%",
+          bottom: 34,
+          transform: "translateX(-50%)",
+          width: 330,
+          height: 40,
+          borderRadius: 10,
+          border: "2px solid #000",
+          background: "#FFB808",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          padding: 0,
+          cursor: "pointer",
+          zIndex: 2,
+        }}
+      >
+        <span
+          style={{
+            color: "#000",
+            textAlign: "center",
+            fontFamily: "Inter",
+            fontSize: 16,
+            fontStyle: "normal",
+            fontWeight: 700,
+            lineHeight: "normal",
+            letterSpacing: "-0.8px",
+          }}
+        >
+          입사 등록 완료
         </span>
-      </RoundBox>
-      <button className="btn btn-primary" style={{ width: "100%" }} onClick={onDraw} aria-label="미션 카드 뽑기">
-        미션 카드 뽑기
+      </button>
+      {showWarn && <NameWarnPopup onDone={() => setShowWarn(false)} />}
+    </div>
+  );
+}
+
+/* ============================================================
+   화면 3. 미션 안내
+   ============================================================ */
+function MissionIntroScreen({ onDraw }){
+  return (
+    <div
+      className="screen scene-fade"
+      style={{
+        position: "relative",
+        backgroundImage: 'url("missionCard/missionCard_1.svg")',
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+        backgroundRepeat: "no-repeat",
+        padding: 0,
+        overflow: "hidden",
+      }}
+    >
+      <button
+        type="button"
+        onClick={onDraw}
+        aria-label="미션 카드 뽑기"
+        style={{
+          position: "absolute",
+          left: "50%",
+          bottom: 34,
+          transform: "translateX(-50%)",
+          width: 330,
+          height: 40,
+          borderRadius: 10,
+          border: "2px solid #000",
+          background: "#FFB808",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          padding: 0,
+          cursor: "pointer",
+          zIndex: 2,
+        }}
+      >
+        <span
+          style={{
+            color: "#000",
+            textAlign: "center",
+            fontFamily: "Inter",
+            fontSize: 16,
+            fontStyle: "normal",
+            fontWeight: 700,
+            lineHeight: "normal",
+            letterSpacing: "-0.8px",
+          }}
+        >
+          미션 카드 뽑기
+        </span>
       </button>
     </div>
   );
@@ -743,63 +949,96 @@ function MissionIntroScreen({ name, onDraw }){
    화면 5-6. 랜덤 미션 카드 뽑기 + 공개
    ============================================================ */
 function MissionCardDraw({ mission, onNext }){
-  const [phase, setPhase] = useState("idle"); // idle -> shaking -> flipped
-  const [flipped, setFlipped] = useState(false);
+  const [phase, setPhase] = useState("shaking");
 
-  const handleDraw = () => {
-    if (phase !== "idle") return;
-    setPhase("shaking");
-    setTimeout(() => {
-      setPhase("done");
-      setFlipped(true);
-    }, 1000);
-  };
+  useEffect(() => {
+    if (!mission) return;
+
+    const revealTimer = setTimeout(() => {
+      setPhase("revealed");
+    }, 1200);
+
+    return () => clearTimeout(revealTimer);
+  }, [mission]);
+
+  const revealImage = mission?.id === "mission2"
+    ? "missionCard/missionShow_2.svg"
+    : mission?.id === "mission3"
+      ? "missionCard/missionShow_3.svg"
+      : "missionCard/missionShow_1.svg";
+
+  const backgroundImage = phase === "revealed"
+    ? `url(${revealImage})`
+    : 'url("missionCard/missionCard_2.svg")';
 
   return (
-    <div className="screen scene-fade" style={{ alignItems: "center", textAlign: "center", justifyContent: "center", gap: 22 }}>
-      <TopLogo />
-      <p className="eyebrow">오늘의 미션은?</p>
-      <div className="card3d" style={{ width: 220, height: 300 }}>
-        <div className={`card3d-inner ${flipped ? "flipped" : ""} ${phase === "shaking" ? "shakecard" : ""}`}>
-          <div className="card3d-face card3d-back">
-            <img src={MISSION_CARD_LABEL2} alt="무한LXI상사 미션카드" style={{ width: "100%", height: "100%", objectFit: "cover" }} draggable="false" />
+    <div
+      className="screen scene-fade"
+      style={{
+        position: "relative",
+        backgroundImage,
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+        backgroundRepeat: "no-repeat",
+        padding: 0,
+        overflow: "hidden",
+      }}
+    >
+      <div
+        style={{
+          position: "absolute",
+          inset: 0,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          padding: 24,
+        }}
+      >
+        {phase === "shaking" ? (
+          <div className="shakecard" style={{ width: "100%", maxWidth: 280, display: "flex", alignItems: "center", justifyContent: "center" }}>
+            <img src="missionCard/missionCard.svg" alt="미션 카드" style={{ display: "block", width: "100%", height: "auto" }} draggable="false" />
           </div>
-          <div
-            className="card3d-face card3d-front"
+        ) : null}
+      </div>
+
+      {phase === "revealed" && (
+        <button
+          type="button"
+          onClick={onNext}
+          aria-label="출근 준비 시작"
+          style={{
+            position: "absolute",
+            left: "50%",
+            bottom: 34,
+            transform: "translateX(-50%)",
+            width: 330,
+            height: 40,
+            borderRadius: 10,
+            border: "2px solid #000",
+            background: "#FFB808",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            padding: 0,
+            cursor: "pointer",
+            zIndex: 2,
+          }}
+        >
+          <span
             style={{
-              display: "flex", justifyContent: "center", alignItems: "center",
-              padding: 16, flexDirection: "column", gap: 12,
-              backgroundImage: `url(${MIMG.MISSION_CARD_BG})`,
-              backgroundSize: "cover", backgroundPosition: "center",
+              color: "#000",
+              textAlign: "center",
+              fontFamily: "Inter",
+              fontSize: 16,
+              fontStyle: "normal",
+              fontWeight: 700,
+              lineHeight: "normal",
+              letterSpacing: "-0.8px",
             }}
           >
-            <div style={{ width: "100%", flex: 1, display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center", gap: 12 }}>
-              {mission.cardImage ? (
-                <img
-                  src={mission.cardImage}
-                  alt={mission.title}
-                  style={{ width: "78%", maxWidth: 140, height: 120, borderRadius: 10, objectFit: "contain", display: "block" }}
-                  draggable="false"
-                />
-              ) : null}
-              <span className="caption-text dark" style={{ fontSize: 19, textAlign: "center", lineHeight: 1.3 }}>{mission.title}</span>
-            </div>
-          </div>
-        </div>
-      </div>
-      {phase === "idle" && (
-        <button className="btn btn-primary" style={{ width: "100%" }} onClick={handleDraw} aria-label="미션 카드 뽑기">
-          카드 뽑기
-        </button>
-      )}
-      {phase === "shaking" && <p style={{ color: "#777" }}>두구두구두구...</p>}
-      {phase === "done" && (
-        <>
-          <RoundBox>{mission.brief}</RoundBox>
-          <button className="btn btn-primary" style={{ width: "100%" }} onClick={onNext} aria-label="출근 준비 시작">
             출근 준비 시작!
-          </button>
-        </>
+          </span>
+        </button>
       )}
     </div>
   );
@@ -1189,7 +1428,7 @@ function App(){
     if (transitioning.current) return;
     transitioning.current = true;
     setStep(next);
-    setTimeout(() => { transitioning.current = false; }, 320);
+    setTimeout(() => { transitioning.current = false; }, 380);
   };
 
   const handleDrawMission = () => {
@@ -1202,7 +1441,7 @@ function App(){
     setOutfit({ top: null, bottom: null, accessory: null });
     setMission(null);
     setConfirmOpen(false);
-    goTo("title");
+    goTo("name");
   };
 
   let content = null;
@@ -1214,13 +1453,10 @@ function App(){
       content = <IntroNarration onFinish={() => goTo("name")} />;
       break;
     case "name":
-      content = <NameInputScreen name={name} setName={setName} onSubmit={() => goTo("title")} />;
-      break;
-    case "title":
-      content = <TitleScreen onStart={() => goTo("missionIntro")} />;
+      content = <NameInputScreen name={name} setName={setName} onSubmit={() => goTo("missionIntro")} />;
       break;
     case "missionIntro":
-      content = <MissionIntroScreen name={name} onDraw={handleDrawMission} />;
+      content = <MissionIntroScreen onDraw={handleDrawMission} />;
       break;
     case "missionDraw":
       content = <MissionCardDraw mission={mission} onNext={() => goTo("dressUp")} />;
