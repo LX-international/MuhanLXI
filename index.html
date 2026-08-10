@@ -20,6 +20,95 @@
   --paper:#F7F5EF;
   --paper-soft:#EFEDE5;
 }
+
+.outfit-check-overlay{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,0.55);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  z-index:1000;
+}
+.check-outfit-popup{
+  position:fixed;
+  left:50%;
+  top:50%;
+  transform:translate(-50%, -50%);
+  width:329px;
+  height:410px;
+  z-index:1001;
+  pointer-events:auto;
+}
+.check-outfit-graphic{
+  display:block;
+  width:329px;
+  height:410px;
+  object-fit:contain;
+  pointer-events:none;
+}
+.final-lex-image{
+  position:fixed;
+  left:50%;
+  bottom:172px;
+  transform:translateX(-50%);
+  width:157px;
+  height:157px;
+  object-fit:contain;
+  z-index:1002;
+  pointer-events:none;
+}
+.check-outfit-item-labels{
+  position:fixed;
+  left:50%;
+  bottom:144px;
+  transform:translateX(-50%);
+  display:flex;
+  gap:11px;
+  z-index:1002;
+  pointer-events:none;
+}
+.check-outfit-item-label{
+  width:62px;
+  height:25px;
+  background:#E3E9EE;
+  border:1.5px solid #4AB1E7;
+  border-radius:7px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+  white-space:nowrap;
+  overflow:hidden;
+}
+.check-outfit-item-label span,
+.outfit-item-name {
+  color:#1326A1 !important;
+  opacity:1 !important;
+  -webkit-text-fill-color:#1326A1 !important;
+  text-fill-color:#1326A1 !important;
+  font-weight:900;
+  line-height:1;
+  font-size:12px;
+  text-shadow: 0 0 0.8px #1326A1;
+  -webkit-text-stroke:0.5px #FFFFFF !important;
+  text-stroke:0.5px #FFFFFF !important;
+}
+.check-outfit-actions{
+  position:absolute;
+  left:20px;
+  right:20px;
+  bottom:18px;
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+  z-index:1003;
+}
+.check-outfit-actions .btn{
+  width:100%;
+  min-height:44px;
+  font-size:16px;
+}
 *{box-sizing:border-box;}
 html,body{margin:0;padding:0;background:#1b1b1b;}
 body{
@@ -202,6 +291,16 @@ input[type=text]:focus-visible{ outline:3px solid var(--blue); outline-offset:2p
 
 .rex-wrap{ position:relative; width:100%; max-width:280px; margin:0 auto; }
 .rex-img{ width:100%; display:block; }
+.result-water{
+  position:absolute;
+  width: 43.951px;
+  height: 41.335px;
+  right: 34px;
+  bottom: 600px;
+  transform: rotate(-42.1deg);
+  pointer-events: none;
+  user-select: none;
+}
 .badge{
   position:absolute;
   width:56px;
@@ -229,6 +328,7 @@ input[type=text]:focus-visible{ outline:3px solid var(--blue); outline-offset:2p
 }
 .item-card.trap{ background:#e4e2da; }
 .item-card.selected{ border-color:var(--green); border-width:4px; }
+.item-card.error-active{ background:#D9D9D9; }
 .item-card .check{
   position:absolute; top:4px; right:4px;
   background:var(--green); color:#fff; border-radius:50%;
@@ -236,8 +336,8 @@ input[type=text]:focus-visible{ outline:3px solid var(--blue); outline-offset:2p
   font-size:14px;
 }
 .item-emoji{
-  width:48px;
-  height:48px;
+  width:52px;
+  height:52px;
   object-fit:contain;
 }
 .item-name{ font-size:14px; text-align:center; color:var(--ink); word-break:keep-all; }
@@ -308,6 +408,14 @@ input[type=text]:focus-visible{ outline:3px solid var(--blue); outline-offset:2p
   position:fixed; left:50%; top:38%; transform:translate(-50%,-50%); z-index:60;
   animation: shakepop 1.5s ease forwards;
   max-width:90vw;
+}
+.error-overlay{
+  position:fixed; left:50%; top:50%; transform:translate(-50%,-50%);
+  width:358px; height:358px; max-width:calc(100vw - 24px); max-height:calc(100vh - 24px);
+  z-index:9999; pointer-events:none; display:flex; align-items:center; justify-content:center;
+}
+.error-overlay img{
+  width:100%; height:100%; object-fit:contain; display:block;
 }
 @keyframes shakepop{
   0%{ transform:translate(-50%,-50%) scale(0.5) rotate(-6deg); opacity:0; }
@@ -390,6 +498,35 @@ const LXI_LOGO = window.__LXI_LOGO__;
 const MISSION_CARD_LABEL2 = window.__MISSION_CARD_LABEL2__;
 const MISSION_COMPLETE_STAMP = window.__MISSION_COMPLETE_STAMP__;
 
+const ERROR_SVG_FILES = [
+  "error_mission1_a3.svg",
+  "error_mission1_a4.svg",
+  "error_mission1_b2.svg",
+  "error_mission1_b3.svg",
+  "error_mission1_t3.svg",
+  "error_mission1_t4.svg",
+  "error_mission2_a2.svg",
+  "error_mission2_a3.svg",
+  "error_mission2_b1.svg",
+  "error_mission2_b4.svg",
+  "error_mission2_t1.svg",
+  "error_mission2_t2.svg",
+  "error_mission3_a2.svg",
+  "error_mission3_a4.svg",
+  "error_mission3_b2.svg",
+  "error_mission3_b4.svg",
+  "error_mission3_t2.svg",
+  "error_mission3_t4.svg",
+];
+const ERROR_SVG_SET = new Set(ERROR_SVG_FILES);
+const ERROR_ASSET_PREFIXES = ["lex_clothes", "clothes"];
+
+function getErrorAssetPath(itemId) {
+  const errorFileName = `error_${itemId}.svg`;
+  if (!ERROR_SVG_SET.has(errorFileName)) return null;
+  return ERROR_ASSET_PREFIXES.map((prefix) => `${prefix}/${errorFileName}`).find(Boolean);
+}
+
 /* =========================================================
    데이터: 미션 & 아이템
    type Item = { id, name, category:'top'|'bottom'|'accessory', emoji, isTrap?, comment? }
@@ -400,7 +537,7 @@ const MISSION_COMPLETE_STAMP = window.__MISSION_COMPLETE_STAMP__;
    ========================================================= */
 const MISSIONS = [
   {
-    id: "mission1",
+    id: "mission3",
     title: "인도네시아 광산 출장",
     brief: "거친 자원개발 현장에서도 완벽하게 빛나는 상사맨다운 룩을 갖춰!",
     bgGrad: "linear-gradient(180deg,#C99B5A 0%,#7A5A34 100%)",
@@ -408,27 +545,27 @@ const MISSIONS = [
     cardImage: "logo/인도네시아%20광산.png",
     items: {
       top: [
-        { id: "t1", name: "현장 작업복", category: "top", emoji: "🦺" },
-        { id: "t2", name: "LXI 후드티", category: "top", emoji: "🧥" },
-        { id: "t3", name: "안전조끼", category: "top", emoji: "🟠" },
-        { id: "t4", name: "하와이안 셔츠", category: "top", emoji: "🌺", isTrap: true, comment: "신입! 놀러 가는 거 아니다!" },
+        { id: "mission3_t1", name: "현장 작업복", category: "top", emoji: "🦺", image: "lex_clothes/misson3_t1.svg" },
+        { id: "mission3_t2", name: "아이돌 의상", category: "top", emoji: "🧥", image: "lex_clothes/misson3_t2.svg" },
+        { id: "mission3_t3", name: "안전조끼", category: "top", emoji: "🟠", image: "lex_clothes/misson3_t3.svg" },
+        { id: "mission3_t4", name: "하와이안 셔츠", category: "top", emoji: "🌺", image: "lex_clothes/misson3_t4.svg", isTrap: true, comment: "신입! 놀러 가는 거 아니다!" },
       ],
       bottom: [
-        { id: "b1", name: "작업 팬츠", category: "bottom", emoji: "👖" },
-        { id: "b2", name: "슬랙스", category: "bottom", emoji: "👔" },
-        { id: "b3", name: "카고 팬츠", category: "bottom", emoji: "🩳" },
-        { id: "b4", name: "꽃무늬 반바지", category: "bottom", emoji: "🌸", isTrap: true, comment: "[사원이름] 신입! 휴양지 일정은 아직 없다!" },
+        { id: "mission3_b1", name: "작업 팬츠", category: "bottom", emoji: "👖", image: "lex_clothes/misson3_b1.svg" },
+        { id: "mission3_b2", name: "찢어진 청바지", category: "bottom", emoji: "👔", image: "lex_clothes/misson3_b2.svg" },
+        { id: "mission3_b3", name: "카고 팬츠", category: "bottom", emoji: "🩳", image: "lex_clothes/misson3_b3.svg" },
+        { id: "mission3_b4", name: "꽃무늬 반바지", category: "bottom", emoji: "🌸", image: "lex_clothes/misson3_b4.svg", isTrap: true, comment: "[사원이름] 신입! 휴양지 일정은 아직 없다!" },
       ],
       accessory: [
-        { id: "a1", name: "안전모", category: "accessory", emoji: "⛑️" },
-        { id: "a2", name: "출장 백팩", category: "accessory", emoji: "🎒" },
-        { id: "a3", name: "안전화", category: "accessory", emoji: "🥾" },
-        { id: "a4", name: "길리슈트", category: "accessory", emoji: "🥷", isTrap: true, comment: "[사원이름]… 광산에 잠입하는 거 아니야!" },
+        { id: "mission3_a1", name: "안전모", category: "accessory", emoji: "⛑️", image: "lex_clothes/misson3_a1.svg" },
+        { id: "mission3_a2", name: "미니백", category: "accessory", emoji: "🎒", image: "lex_clothes/misson3_a2.svg" },
+        { id: "mission3_a3", name: "안전화", category: "accessory", emoji: "🥾", image: "lex_clothes/misson3_a3.svg" },
+        { id: "mission3_a4", name: "길리슈트", category: "accessory", emoji: "🥷", image: "lex_clothes/misson3_a4.svg", isTrap: true, comment: "[사원이름]… 광산에 잠입하는 거 아니야!" },
       ],
     },
   },
   {
-    id: "mission2",
+    id: "mission1",
     title: "글로벌 바이어 미팅",
     brief: "바이어의 신뢰를 싹 쓸어담을 스마트 비즈니스 룩을 입어!",
     bgGrad: "linear-gradient(180deg,#2b3a55 0%,#0f1626 100%)",
@@ -436,27 +573,27 @@ const MISSIONS = [
     cardImage: "logo/해외%20바이어%20미팅.png",
     items: {
       top: [
-        { id: "t1", name: "네이비 블레이저", category: "top", emoji: "🧥" },
-        { id: "t2", name: "LXI 셔츠", category: "top", emoji: "👕" },
-        { id: "t3", name: "슈퍼히어로 망토", category: "top", emoji: "🦸", isTrap: true, comment: "계약 따러 가는 거지, 지구 구하러 가는 거 아니다!" },
-        { id: "t4", name: "블라우스", category: "top", emoji: "👚" },
+        { id: "mission1_t1", name: "네이비 블레이저", category: "top", emoji: "🧥", image: "lex_clothes/misson1_t1.svg" },
+        { id: "mission1_t2", name: "LXI 셔츠", category: "top", emoji: "👕", image: "lex_clothes/misson1_t2.svg" },
+        { id: "mission1_t3", name: "슈퍼히어로 망토", category: "top", emoji: "🦸", image: "lex_clothes/misson1_t3.svg", isTrap: true, comment: "계약 따러 가는 거지, 지구 구하러 가는 거 아니다!" },
+        { id: "mission1_t4", name: "나시", category: "top", emoji: "👚", image: "lex_clothes/misson1_t4.svg" },
       ],
       bottom: [
-        { id: "b1", name: "슬랙스", category: "bottom", emoji: "👔" },
-        { id: "b2", name: "정장치마", category: "bottom", emoji: "👗" },
-        { id: "b3", name: "체육복 반바지", category: "bottom", emoji: "🩳", isTrap: true, comment: "체육대회라도 나가는 거야?" },
-        { id: "b4", name: "검정 청바지", category: "bottom", emoji: "👖" },
+        { id: "mission1_b1", name: "슬랙스", category: "bottom", emoji: "👔", image: "lex_clothes/misson1_b1.svg" },
+        { id: "mission1_b2", name: "프릴 스커트", category: "bottom", emoji: "👗", image: "lex_clothes/misson1_b2.svg" },
+        { id: "mission1_b3", name: "체육복 반바지", category: "bottom", emoji: "🩳", image: "lex_clothes/misson1_b3.svg", isTrap: true, comment: "체육대회라도 나가는 거야?" },
+        { id: "mission1_b4", name: "검정 청바지", category: "bottom", emoji: "👖", image: "lex_clothes/misson1_b4.svg" },
       ],
       accessory: [
-        { id: "a1", name: "넥타이", category: "accessory", emoji: "👔" },
-        { id: "a2", name: "서류가방", category: "accessory", emoji: "💼" },
-        { id: "a3", name: "LXI 사원증", category: "accessory", emoji: "🪪" },
-        { id: "a4", name: "수저세트", category: "accessory", emoji: "🥄", isTrap: true, comment: "신입! 오늘은 먹으러 가는 게 아니야!" },
+        { id: "mission1_a1", name: "넥타이", category: "accessory", emoji: "👔", image: "lex_clothes/misson1_a1.svg" },
+        { id: "mission1_a2", name: "서류가방", category: "accessory", emoji: "💼", image: "lex_clothes/misson1_a2.svg" },
+        { id: "mission1_a3", name: "렉스 키캡 키링", category: "accessory", emoji: "🪪", image: "lex_clothes/misson1_a3.svg" },
+        { id: "mission1_a4", name: "수저세트", category: "accessory", emoji: "🥄", image: "lex_clothes/misson1_a4.svg", isTrap: true, comment: "신입! 오늘은 먹으러 가는 게 아니야!" },
       ],
     },
   },
   {
-    id: "mission3",
+    id: "mission2",
     title: "친환경 · 탄소배출권 PT",
     brief: "미래지향적 패기를 복장으로 증명해봐!",
     bgGrad: "linear-gradient(180deg,#bfe6c9 0%,#3a8f63 100%)",
@@ -464,22 +601,22 @@ const MISSIONS = [
     cardImage: "logo/탄소%20pt.png",
     items: {
       top: [
-        { id: "t1", name: "초록 니트", category: "top", emoji: "🧶" },
-        { id: "t2", name: "공룡 코스튬", category: "top", emoji: "🦖", isTrap: true, comment: "공룡 멸종사부터 설명할 생각이냐!" },
-        { id: "t3", name: "재킷", category: "top", emoji: "🧥" },
-        { id: "t4", name: "LXI 셔츠", category: "top", emoji: "👕" },
+        { id: "mission2_t1", name: "크리스마스 니트", category: "top", emoji: "🧶", image: "lex_clothes/misson2_t1.svg" },
+        { id: "mission2_t2", name: "공룡 코스튬", category: "top", emoji: "🦖", image: "lex_clothes/misson2_t2.svg", isTrap: true, comment: "공룡 멸종사부터 설명할 생각이냐!" },
+        { id: "mission2_t3", name: "재킷", category: "top", emoji: "🧥", image: "lex_clothes/misson2_t3.svg" },
+        { id: "mission2_t4", name: "LXI 셔츠", category: "top", emoji: "👕", image: "lex_clothes/misson2_t4.svg" },
       ],
       bottom: [
-        { id: "b1", name: "한복 바지", category: "bottom", emoji: "👘", isTrap: true, comment: "전통도 좋지만, 오늘은 미래사업 발표다!" },
-        { id: "b2", name: "슬랙스", category: "bottom", emoji: "👔" },
-        { id: "b3", name: "조거 팬츠", category: "bottom", emoji: "👖" },
-        { id: "b4", name: "테이퍼드 팬츠", category: "bottom", emoji: "👖" },
+        { id: "mission2_b1", name: "한복 바지", category: "bottom", emoji: "👘", image: "lex_clothes/misson2_b1.svg", isTrap: true, comment: "전통도 좋지만, 오늘은 미래사업 발표다!" },
+        { id: "mission2_b2", name: "슬랙스", category: "bottom", emoji: "👔", image: "lex_clothes/misson2_b2.svg" },
+        { id: "mission2_b3", name: "조거 팬츠", category: "bottom", emoji: "👖", image: "lex_clothes/misson2_b3.svg" },
+        { id: "mission2_b4", name: "테이퍼드 팬츠", category: "bottom", emoji: "👖", image: "lex_clothes/misson2_b4.svg" },
       ],
       accessory: [
-        { id: "a1", name: "프레젠터", category: "accessory", emoji: "🖱️" },
-        { id: "a2", name: "VR 헤드셋", category: "accessory", emoji: "🥽", isTrap: true, comment: "신입! 발표는 현실에서 하는 거야!" },
-        { id: "a3", name: "노트북", category: "accessory", emoji: "💻" },
-        { id: "a4", name: "손목시계", category: "accessory", emoji: "⌚" },
+        { id: "mission2_a1", name: "프레젠터", category: "accessory", emoji: "🖱️", image: "lex_clothes/misson2_a1.svg" },
+        { id: "mission2_a2", name: "VR 헤드셋", category: "accessory", emoji: "🥽", image: "lex_clothes/misson2_a2.svg", isTrap: true, comment: "신입! 발표는 현실에서 하는 거야!" },
+        { id: "mission2_a3", name: "렉스 피규어", category: "accessory", emoji: "💻", image: "lex_clothes/misson2_a3.svg" },
+        { id: "mission2_a4", name: "손목시계", category: "accessory", emoji: "⌚", image: "lex_clothes/misson2_a4.svg" },
       ],
     },
   },
@@ -498,13 +635,103 @@ function withName(text, name){
   return text.split("[사원이름]").join(n);
 }
 
-function getItemImagePath(name){
-  const special = {
-    "LXI 사원증": "clothes/사원증.png",
-    "초록 니트": "clothes/초록니트.png",
-  };
-  const path = special[name] || `clothes/${name}.png`;
+function getItemImagePath(itemOrName){
+  if (!itemOrName) return "";
+  const { image, name } = typeof itemOrName === "string"
+    ? { image: null, name: itemOrName }
+    : itemOrName;
+  const path = image || `lex_clothes/${nameToAssetName(name)}.svg`;
   return encodeURI(path);
+}
+
+function getItemSelectionCode(itemId, missionId){
+  if (!itemId || !missionId) return null;
+  const normalizedItemId = String(itemId);
+  if (!normalizedItemId.startsWith(missionId)) return null;
+  return normalizedItemId.slice(missionId.length).replace(/^_/, "");
+}
+
+function getFinalRightLexAssetPath(mission, outfit){
+  if (!mission?.id || !outfit?.top || !outfit?.bottom || !outfit?.accessory) return null;
+
+  const missionId = mission.id;
+  const topCode = getItemSelectionCode(outfit.top.id, missionId);
+  const bottomCode = getItemSelectionCode(outfit.bottom.id, missionId);
+  const accessoryCode = getItemSelectionCode(outfit.accessory.id, missionId);
+
+  if (!topCode || !bottomCode || !accessoryCode) return null;
+
+  const assetName = `${missionId}_${topCode}_${bottomCode}_${accessoryCode}.svg`;
+  const assetPath = `right_lex_clothes/${assetName}`;
+
+  const normalizedPath = assetPath.toLowerCase();
+  const availableAssets = [
+    "mission1_t1_b1_a1.svg",
+    "mission1_t1_b1_a2.svg",
+    "mission1_t1_b4_a1.svg",
+    "mission1_t1_b4_a2.svg",
+    "mission1_t2_b1_a1.svg",
+    "mission1_t2_b1_a2.svg",
+    "mission1_t2_b4_a1.svg",
+    "mission1_t2_b4_a2.svg",
+    "mission2_t3_b2_a1.svg",
+    "mission2_t3_b2_a4.svg",
+    "mission2_t3_b3_a1.svg",
+    "mission2_t3_b3_a4.svg",
+    "mission2_t4_b2_a1.svg",
+    "mission2_t4_b2_a4.svg",
+    "mission2_t4_b3_a1.svg",
+    "mission2_t4_b3_a4.svg",
+    "mission3_t1_b1_a1.svg",
+    "mission3_t1_b1_a3.svg",
+    "mission3_t1_b3_a1.svg",
+    "mission3_t1_b3_a3.svg",
+    "mission3_t3_b1_a1.svg",
+    "mission3_t3_b1_a3.svg",
+    "mission3_t3_b3_a1.svg",
+    "mission3_t3_b3_a3.svg",
+  ];
+
+  return availableAssets.includes(assetName) ? assetPath : null;
+}
+
+function nameToAssetName(name){
+  const map = {
+    "현장 작업복": "misson3_t1",
+    "아이돌 의상": "misson3_t2",
+    "안전조끼": "misson3_t3",
+    "하와이안 셔츠": "misson3_t4",
+    "작업 팬츠": "misson3_b1",
+    "찢어진 청바지": "misson3_b2",
+    "카고 팬츠": "misson3_b3",
+    "꽃무늬 반바지": "misson3_b4",
+    "안전모": "misson3_a1",
+    "미니백": "misson3_a2",
+    "안전화": "misson3_a3",
+    "길리슈트": "misson3_a4",
+    "네이비 블레이저": "misson1_t1",
+    "LXI 셔츠": "misson1_t2",
+    "슈퍼히어로 망토": "misson1_t3",
+    "나시": "misson1_t4",
+    "프릴 스커트": "misson1_b2",
+    "체육복 반바지": "misson1_b3",
+    "검정 청바지": "misson1_b4",
+    "넥타이": "misson1_a1",
+    "서류가방": "misson1_a2",
+    "렉스 키캡 키링": "misson1_a3",
+    "수저세트": "misson1_a4",
+    "크리스마스 니트": "misson2_t1",
+    "공룡 코스튬": "misson2_t2",
+    "재킷": "misson2_t3",
+    "한복 바지": "misson2_b1",
+    "조거 팬츠": "misson2_b3",
+    "테이퍼드 팬츠": "misson2_b4",
+    "프레젠터": "misson2_a1",
+    "VR 헤드셋": "misson2_a2",
+    "렉스 피규어": "misson2_a3",
+    "손목시계": "misson2_a4",
+  };
+  return map[name] || name;
 }
 
 /* ============ 재사용 말풍선 컴포넌트 ============ */
@@ -574,15 +801,24 @@ function RexCharacter({ src, mood, outfit, size = 260, showOutfitBadges = true }
     <div className="rex-wrap" style={{ maxWidth: size }}>
       <img src={src} alt="렉스 캐릭터" className="rex-img" draggable="false" />
       {showOutfitBadges && outfit && outfit.top && (
-        <img className="badge badge-img" style={{ top: "34%", left: "14%" }} aria-hidden="true" src={getItemImagePath(outfit.top.name)} alt="" />
+        <img className="badge badge-img" style={{ top: "34%", left: "14%" }} aria-hidden="true" src={getItemImagePath(outfit.top)} alt="" />
       )}
       {showOutfitBadges && outfit && outfit.bottom && (
-        <img className="badge badge-img" style={{ top: "62%", left: "58%" }} aria-hidden="true" src={getItemImagePath(outfit.bottom.name)} alt="" />
+        <img className="badge badge-img" style={{ top: "62%", left: "58%" }} aria-hidden="true" src={getItemImagePath(outfit.bottom)} alt="" />
       )}
       {showOutfitBadges && outfit && outfit.accessory && (
-        <img className="badge badge-img" style={{ top: "8%", left: "62%" }} aria-hidden="true" src={getItemImagePath(outfit.accessory.name)} alt="" />
+        <img className="badge badge-img" style={{ top: "8%", left: "62%" }} aria-hidden="true" src={getItemImagePath(outfit.accessory)} alt="" />
       )}
       {mood === "sweat" && <span className="badge" style={{ top: "20%", left: "6%", fontSize: 26 }} aria-hidden="true">💦</span>}
+      {mood === "water" && (
+        <img
+          src="result/water.png"
+          alt=""
+          className="rex-water"
+          aria-hidden="true"
+          draggable="false"
+        />
+      )}
       {mood === "sparkle" && (
         <>
           <span className="badge sparkle" style={{ top: "2%", left: "78%", fontSize: 24 }} aria-hidden="true">✨</span>
@@ -961,9 +1197,9 @@ function MissionCardDraw({ mission, onNext }){
     return () => clearTimeout(revealTimer);
   }, [mission]);
 
-  const revealImage = mission?.id === "mission2"
+  const revealImage = mission?.id === "mission1"
     ? "missionCard/missionShow_2.svg"
-    : mission?.id === "mission3"
+    : mission?.id === "mission2"
       ? "missionCard/missionShow_3.svg"
       : "missionCard/missionShow_1.svg";
 
@@ -1053,104 +1289,252 @@ const CATS = [
   { key: "accessory", label: "액세서리" },
 ];
 
-function DressUpScreen({ name, mission, outfit, setOutfit, onSubmit }){
-  const [activeCategory, setActiveCategory] = useState("top");
-  const [trapComment, setTrapComment] = useState(null);
-  const [warn, setWarn] = useState(false);
-  const trapKeyRef = useRef(0);
+function DressUpScreen({ mission, outfit, setOutfit, onSubmit }){
+  const [selectedCategory, setSelectedCategory] = useState("top");
+  const [errorActiveItemId, setErrorActiveItemId] = useState(null);
+  const [errorOverlayItemId, setErrorOverlayItemId] = useState(null);
+  const errorTimeoutRef = useRef(null);
 
-  const handlePick = (item) => {
-    setOutfit((prev) => ({ ...prev, [item.category]: item }));
-    if (item.isTrap){
-      trapKeyRef.current += 1;
-      setTrapComment({ text: withName(item.comment, name), key: trapKeyRef.current });
-    }
-  };
+  const missionTagImage = mission?.id === "mission1"
+    ? "lex_clothes_background/global_buyer_meeting_tag.svg"
+    : mission?.id === "mission2"
+      ? "lex_clothes_background/eco_pt_tag.svg"
+      : "lex_clothes_background/indonesia_mine_trip_tag.svg";
 
-  const handleSubmitClick = () => {
-    if (!outfit.top || !outfit.bottom || !outfit.accessory){
-      setWarn(true);
+  const missionCommandImage = mission?.id === "mission1"
+    ? "lex_clothes_background/global_buyer_meeting_command.svg"
+    : mission?.id === "mission2"
+      ? "lex_clothes_background/eco_pt_command.svg"
+      : "lex_clothes_background/indonesia_mine_trip_command.svg";
+
+  const categoryButtons = [
+    { key: "top", label: "TOP", defaultSvg: "lex_clothes_background/button_top.svg", chooseSvg: "lex_clothes_background/button_top_choose.svg" },
+    { key: "bottom", label: "BOTTOM", defaultSvg: "lex_clothes_background/button_bottom.svg", chooseSvg: "lex_clothes_background/button_bottom_choose.svg" },
+    { key: "acce", label: "ACCE", defaultSvg: "lex_clothes_background/button_acce.svg", chooseSvg: "lex_clothes_background/button_acce_choose.svg" },
+  ];
+
+  const categoryMap = { top: "top", bottom: "bottom", acce: "accessory" };
+  const currentOutfitKey = categoryMap[selectedCategory];
+  const visibleItems = (mission?.items?.[currentOutfitKey] || []).slice(0, 4);
+  const errorOverlayImage = errorOverlayItemId ? getErrorAssetPath(errorOverlayItemId) : null;
+
+  useEffect(() => {
+    return () => {
+      if (errorTimeoutRef.current) {
+        clearTimeout(errorTimeoutRef.current);
+      }
+    };
+  }, []);
+
+  const handleItemSelect = (item) => {
+    const errorAssetPath = getErrorAssetPath(item.id);
+    if (errorAssetPath) {
+      setErrorOverlayItemId(item.id);
+      setErrorActiveItemId(item.id);
+      if (errorTimeoutRef.current) clearTimeout(errorTimeoutRef.current);
+      errorTimeoutRef.current = setTimeout(() => {
+        setErrorOverlayItemId(null);
+        setErrorActiveItemId(null);
+      }, 2000);
       return;
     }
-    onSubmit();
+
+    if (errorTimeoutRef.current) {
+      clearTimeout(errorTimeoutRef.current);
+    }
+    setErrorOverlayItemId(null);
+    setErrorActiveItemId(null);
+    setOutfit((prev) => ({ ...prev, [currentOutfitKey]: item }));
+  };
+
+  const handleSubmit = () => {
+    if (!outfit.top || !outfit.bottom || !outfit.accessory) {
+      window.alert("상의, 하의, 액세서리를 모두 선택해주세요!");
+      return;
+    }
+    onSubmit?.();
   };
 
   return (
-    <div className="screen scene-fade" style={{ gap: 14, paddingBottom: 24 }}>
-      <TopLogo size={52} />
-      <div style={{ textAlign: "center" }}>
-        <p className="eyebrow" style={{ marginBottom: 2 }}>{mission.title}</p>
-        <p style={{ fontSize: 14, color: "#555", margin: "0 0 4px" }}>{mission.brief}</p>
-        <div className="tilt" style={{ display: "inline-block" }}>
-          <span className="caption-text dark" style={{ fontSize: 16 }}>{withName("[사원이름] 신입의 출근 준비", name)}</span>
+    <div
+      className="screen scene-fade"
+      style={{
+        gap: 14,
+        paddingBottom: 24,
+        position: "relative",
+        backgroundImage: 'url("lex_clothes_background/choose_cloth_background.svg")',
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+        backgroundRepeat: "no-repeat",
+        overflow: "hidden",
+      }}
+    >
+      {missionCommandImage && (
+        <img
+          src={missionCommandImage}
+          alt=""
+          draggable="false"
+          style={{
+            position: "absolute",
+            left: "calc(100% - 15px)",
+            bottom: 524,
+            transform: "translateX(-100%)",
+            width: "auto",
+            maxWidth: "38%",
+            height: "auto",
+            zIndex: 0,
+            pointerEvents: "none",
+          }}
+        />
+      )}
+
+      {missionTagImage && (
+        <img
+          src={missionTagImage}
+          alt=""
+          draggable="false"
+          style={{
+            position: "absolute",
+            top: 70,
+            left: "50%",
+            transform: "translateX(-50%)",
+            width: "auto",
+            maxWidth: "82%",
+            height: "auto",
+            zIndex: 1,
+            pointerEvents: "none",
+          }}
+        />
+      )}
+
+      <div
+        style={{
+          position: "absolute",
+          left: "50%",
+          top: "calc(70px + 120px + 10px)",
+          transform: "translateX(-50%)",
+          zIndex: 2,
+          pointerEvents: "none",
+        }}
+      >
+        <img
+          src="lex_clothes_background/original_lex_with_shadow.svg"
+          alt=""
+          draggable="false"
+          style={{
+            display: "block",
+            width: 260,
+            height: 260,
+            objectFit: "contain",
+            margin: "0 auto",
+          }}
+        />
+      </div>
+
+      {errorOverlayImage && (
+        <div className="error-overlay" role="status" aria-live="polite">
+          <img src={errorOverlayImage} alt="오류 아이템" draggable="false" />
         </div>
-      </div>
-
-      <RexCharacter src={IMG.BASE_REX} outfit={outfit} size={190} showOutfitBadges={false} />
-
-      <div className="selected-slots">
-        {CATS.map((c) => {
-          const selected = outfit[c.key];
-          return (
-            <div key={c.key} className="selected-slot">
-              <div className="selected-slot-label">{c.label}</div>
-              <div className="selected-slot-image">
-                {selected ? (
-                  <img src={getItemImagePath(selected.name)} alt={selected.name} />
-                ) : (
-                  <span aria-hidden="true">?</span>
-                )}
-              </div>
-              <div className="selected-slot-name">{selected ? selected.name : "선택되지 않음"}</div>
-            </div>
-          );
-        })}
-      </div>
-
-      <div className="tabbar" role="tablist" aria-label="의상 카테고리">
-        {CATS.map((c) => (
-          <button
-            key={c.key}
-            role="tab"
-            aria-selected={activeCategory === c.key}
-            aria-label={`${c.label} 탭`}
-            className={`tab-btn ${activeCategory === c.key ? "active" : ""}`}
-            onClick={() => setActiveCategory(c.key)}
-          >
-            {c.label}{outfit[c.key] ? " ✓" : ""}
-          </button>
-        ))}
-      </div>
-
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
-        {mission.items[activeCategory].map((item) => {
-          const selected = outfit[activeCategory] && outfit[activeCategory].id === item.id;
-          return (
-            <button
-              key={item.id}
-              className={`item-card ${item.isTrap ? "trap" : ""} ${selected ? "selected" : ""}`}
-              aria-pressed={selected}
-              aria-label={`${item.name} 선택`}
-              onClick={() => handlePick(item)}
-            >
-              {selected && <span className="check" aria-hidden="true">✓</span>}
-              <img className="item-emoji" aria-hidden="true" src={getItemImagePath(item.name)} alt="" />
-              <span className="item-name">{item.name}</span>
-            </button>
-          );
-        })}
-      </div>
-
-      <button className="btn btn-primary" style={{ width: "100%", marginTop: 6 }} onClick={handleSubmitClick} aria-label="이대로 출근">
-        이대로 출근!
-      </button>
-
-      {trapComment && (
-        <TrapCommentPopup keyId={trapComment.key} comment={trapComment.text} onDone={() => setTrapComment(null)} />
       )}
-      {warn && (
-        <VarietyCaption keyId="warn-incomplete" text="상의·하의·액세서리를 모두 골라주세요!" onDone={() => setWarn(false)} />
-      )}
+
+      <div
+        className="selection-container"
+        style={{
+          position: "absolute",
+          left: "50%",
+          bottom: 110,
+          transform: "translateX(-50%)",
+          zIndex: 4,
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          gap: 20,
+          width: "calc(100% - 40px)",
+          maxWidth: 360,
+        }}
+      >
+        <div style={{ display: "flex", justifyContent: "center", gap: "5.65px", alignItems: "flex-end" }}>
+          {categoryButtons.map((button) => {
+            const isSelected = selectedCategory === button.key;
+            const src = isSelected ? button.chooseSvg : button.defaultSvg;
+            return (
+              <button
+                key={button.key}
+                type="button"
+                onClick={() => setSelectedCategory(button.key)}
+                aria-label={button.label}
+                style={{
+                  width: 108,
+                  height: 54,
+                  padding: 0,
+                  border: "none",
+                  background: "transparent",
+                  cursor: "pointer",
+                }}
+              >
+                <img
+                  src={src}
+                  alt={button.label}
+                  draggable="false"
+                  style={{
+                    display: "block",
+                    width: 108,
+                    height: 54,
+                    objectFit: "contain",
+                  }}
+                />
+              </button>
+            );
+          })}
+        </div>
+
+        <div
+          style={{
+            width: "100%",
+            display: "grid",
+            gridTemplateColumns: "1fr 1fr",
+            gap: 10,
+          }}
+        >
+          {visibleItems.map((item) => {
+            const isSelectedItem = outfit?.[currentOutfitKey]?.id === item.id;
+            const isErrorItem = Boolean(getErrorAssetPath(item.id));
+            const isErrorActiveItem = errorActiveItemId === item.id;
+            return (
+              <button
+                key={item.id}
+                type="button"
+                className={`item-card${isErrorActiveItem ? " error-active" : ""}`}
+                onClick={() => handleItemSelect(item)}
+                aria-pressed={isSelectedItem}
+                style={{
+                  minHeight: 86,
+                  justifyContent: "center",
+                  borderColor: "#4AB1E7",
+                  backgroundColor: isErrorActiveItem ? "#D9D9D9" : (isSelectedItem ? "#AFD9FD" : "#E3E9EE"),
+                  opacity: isErrorItem ? 1 : 1,
+                }}
+                aria-label={`${item.name} 선택`}
+              >
+                <img className="item-emoji" aria-hidden="true" src={getItemImagePath(item)} alt="" />
+                <span className="item-name">{item.name}</span>
+              </button>
+            );
+          })}
+        </div>
+
+        <button
+          className="btn btn-primary"
+          style={{
+            width: "100%",
+            marginTop: 0,
+          }}
+          onClick={handleSubmit}
+          aria-label="이대로 출근"
+        >
+          이대로 출근!
+        </button>
+      </div>
     </div>
   );
 }
@@ -1158,7 +1542,7 @@ function DressUpScreen({ name, mission, outfit, setOutfit, onSubmit }){
 /* ============================================================
    제출 확인 모달
    ============================================================ */
-function ConfirmModal({ outfit, onConfirm, onCancel }){
+function ConfirmModal({ mission, outfit, onConfirm, onCancel }){
   useEffect(() => {
     document.body.style.overflow = "hidden";
     const onKey = (e) => { if (e.key === "Escape") onCancel(); };
@@ -1166,16 +1550,74 @@ function ConfirmModal({ outfit, onConfirm, onCancel }){
     return () => { document.body.style.overflow = ""; window.removeEventListener("keydown", onKey); };
   }, [onCancel]);
 
+  const finalLexImage = getFinalRightLexAssetPath(mission, outfit);
+  const topName = outfit?.top?.name || "";
+  const bottomName = outfit?.bottom?.name || "";
+  const accessoryName = outfit?.accessory?.name || "";
+  const fitLabelSize = (text) => {
+    const length = String(text).length;
+    if (length <= 3) return 13;
+    if (length <= 5) return 12;
+    if (length <= 7) return 11;
+    return 10;
+  };
+
   return (
-    <div className="modal-overlay" onClick={onCancel}>
-      <div className="modal-box" role="dialog" aria-modal="true" aria-label="출근 복장 확인" onClick={(e) => e.stopPropagation()}>
-        <p className="caption-text dark" style={{ fontSize: 19, margin: "4px 0 14px" }}>이 복장으로<br />출근하시겠습니까?</p>
-        <div style={{ textAlign: "left", background: "#F7F5EF", borderRadius: 12, padding: 12, marginBottom: 16, fontSize: 15 }}>
-          <p style={{ margin: "4px 0" }}>👕 상의: {outfit.top ? outfit.top.name : "-"}</p>
-          <p style={{ margin: "4px 0" }}>👖 하의: {outfit.bottom ? outfit.bottom.name : "-"}</p>
-          <p style={{ margin: "4px 0" }}>🎒 액세서리: {outfit.accessory ? outfit.accessory.name : "-"}</p>
+    <div className="outfit-check-overlay" onClick={onCancel}>
+      <div className="check-outfit-popup" role="dialog" aria-modal="true" aria-label="출근 복장 확인" onClick={(e) => e.stopPropagation()}>
+        <img className="check-outfit-graphic" src="right_lex_clothes/check_outfit.svg" alt="" draggable="false" />
+        {finalLexImage ? <img className="final-lex-image" src={finalLexImage} alt="최종 착장 렉스" draggable="false" /> : null}
+        <div className="check-outfit-item-labels">
+          <div className="check-outfit-item-label">
+            <span
+              className="outfit-item-name"
+              style={{
+                color: "#1326A1",
+                WebkitTextFillColor: "#1326A1",
+                WebkitTextStroke: "0.5px #FFFFFF",
+                textStroke: "0.5px #FFFFFF",
+                opacity: 1,
+                fontWeight: 900,
+                fontSize: fitLabelSize(topName),
+              }}
+            >
+              {topName}
+            </span>
+          </div>
+          <div className="check-outfit-item-label">
+            <span
+              className="outfit-item-name"
+              style={{
+                color: "#1326A1",
+                WebkitTextFillColor: "#1326A1",
+                WebkitTextStroke: "0.5px #FFFFFF",
+                textStroke: "0.5px #FFFFFF",
+                opacity: 1,
+                fontWeight: 900,
+                fontSize: fitLabelSize(bottomName),
+              }}
+            >
+              {bottomName}
+            </span>
+          </div>
+          <div className="check-outfit-item-label">
+            <span
+              className="outfit-item-name"
+              style={{
+                color: "#1326A1",
+                WebkitTextFillColor: "#1326A1",
+                WebkitTextStroke: "0.5px #FFFFFF",
+                textStroke: "0.5px #FFFFFF",
+                opacity: 1,
+                fontWeight: 900,
+                fontSize: fitLabelSize(accessoryName),
+              }}
+            >
+              {accessoryName}
+            </span>
+          </div>
         </div>
-        <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+        <div className="check-outfit-actions">
           <button className="btn btn-primary" onClick={onConfirm} aria-label="이대로 출근">이대로 출근</button>
           <button className="btn btn-secondary" onClick={onCancel} aria-label="다시 고르기">다시 고르기</button>
         </div>
@@ -1219,89 +1661,83 @@ function StoryScene({ bgGrad, children, onNext, nextLabel = "다음", background
 
 /* 결과1: 상사의 구박 */
 function Story1({ name, mission, outfit, onNext }){
-  return (
-    <StoryScene bgGrad={mission.bgGrad} onNext={onNext}>
-      <RexCharacter src={IMG.BOSS_REX_2} size={170} />
-      <StarBurst>
-        <span style={{ whiteSpace: "pre-line" }}>{withName(`에휴~\n[사원이름] 신입!\n\n옷만 그럴싸하게 입는다고\n상사맨이 되는 줄 알아?!`, name)}</span>
-      </StarBurst>
-      <div style={{ display: "flex", gap: 8, flexWrap: "wrap", justifyContent: "center" }}>
-        <CloudTag>갑자기 시작된 구박</CloudTag>
-        <CloudTag>첫 출근부터 위기?!</CloudTag>
-      </div>
-    </StoryScene>
-  );
-}
+  const [showBad, setShowBad] = useState(false);
+  const resultBg = mission ? `result/reslut_${mission.id}_bg.svg` : null;
+  const resultImage = showBad ? "result/result_bad.svg" : "result/result_good.svg";
 
-/* 결과2: 긴급 전화 */
-function Story2({ onNext }){
-  const [muted, setMuted] = useState(false);
+  const handleNext = () => {
+    if (!showBad) {
+      setShowBad(true);
+      return;
+    }
+    onNext();
+  };
+
   return (
-    <div className="screen scene-fade" style={{ background: "#0a0a0f", color: "#fff", justifyContent: "space-between", alignItems: "center", textAlign: "center" }}>
-      <div style={{ width: "100%", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-        <span style={{ width: 60 }} aria-hidden="true"></span>
-        <TopLogo />
-        <button
-          className="btn btn-secondary"
-          style={{ minHeight: 36, padding: "0 10px", fontSize: 13 }}
-          onClick={() => setMuted((m) => !m)}
-          aria-label="벨소리 음소거"
-        >
-          {muted ? "🔇" : "🔊"}
+    <div
+      className="screen scene-fade"
+      style={{
+        background: mission?.bgGrad,
+        backgroundImage: resultBg ? `url(${resultBg})` : undefined,
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+        backgroundRepeat: "no-repeat",
+        justifyContent: "space-between",
+        alignItems: "center",
+        textAlign: "center",
+      }}
+    >
+      <TopLogo size={48} />
+
+      <div style={{ flex: 1, display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center", gap: 16, width: "100%" }}>
+      </div>
+
+      {showBad && (
+        <img
+          src="result/water.png"
+          alt=""
+          className="result-water"
+          draggable="false"
+          aria-hidden="true"
+        />
+      )}
+
+      <div style={{ position: "absolute", left: "50%", bottom: 200, transform: "translateX(-50%)", width: 362, height: 182, display: "flex", justifyContent: "center", alignItems: "center" }}>
+        <img
+          src={resultImage}
+          alt={showBad ? "결과 화면 - 나쁨" : "결과 화면 - 좋음"}
+          style={{ width: "100%", height: "100%", objectFit: "contain" }}
+          draggable="false"
+        />
+      </div>
+
+      <div style={{ position: "absolute", left: "50%", bottom: 140, transform: "translateX(-50%)", width: 362, display: "flex", justifyContent: "center" }}>
+        <button className="btn btn-primary" style={{ width: "100%" }} onClick={handleNext} aria-label="넘어가기">
+          넘어가기
         </button>
       </div>
-      <div style={{ flex: 1, display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center", gap: 20 }}>
-        <span style={{ fontSize: 70, display: "inline-block", animation: "cardshake 0.25s ease-in-out infinite" }} aria-hidden="true">📞</span>
-        <StarBurst color="yellow">
-          <span style={{ whiteSpace: "pre-line" }}>회장님의{"\n"}긴급 전화 도착!</span>
-        </StarBurst>
-        {!muted && <p className="caption-text" style={{ fontSize: 20 }}>따르릉! 따르릉!</p>}
-      </div>
-      <button className="btn btn-primary" style={{ width: "100%" }} onClick={onNext} aria-label="전화 받기">전화 받기</button>
     </div>
   );
 }
 
-/* 결과3: 회장님의 발언 */
-function Story3({ name, mission, onNext }){
+/* 결과2: 결과 토운 */
+function Story2({ onNext }){
   return (
-    <StoryScene bgGrad="linear-gradient(180deg,#2c2c2c,#111)" onNext={onNext}>
-      <div style={{ position: "relative" }}>
-        <RexCharacter src={IMG.BOSS_REX_1} size={180} />
-        <span style={{ position: "absolute", top: 0, right: -6, fontSize: 30 }} aria-hidden="true">📞</span>
+    <div className="screen scene-fade" style={{ background: "#000", color: "#fff", justifyContent: "center", alignItems: "center", textAlign: "center" }}>
+      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", width: "100%", maxWidth: 395, gap: 30, padding: "24px 0" }}>
+        <div style={{ width: "100%", background: "#000", display: "flex", justifyContent: "center" }}>
+          <img
+            src="result/frame59.png"
+            alt="결과 이미지"
+            style={{ width: "100%", height: "auto", display: "block", objectFit: "contain" }}
+            draggable="false"
+          />
+        </div>
+        <button className="btn btn-primary" style={{ width: "100%" }} onClick={onNext} aria-label="결과 화면 보기">
+          결과 화면 보기
+        </button>
       </div>
-      <StarBurst color="yellow">
-        <span style={{ whiteSpace: "pre-line" }}>{withName(`렉스 책임!\n\n[사원이름] 사원이 알고 보니\n무한LXI상사의 숨은 글로벌 핵심 인재라던데?!`, name)}</span>
-      </StarBurst>
-      <div style={{ display: "flex", gap: 8, flexWrap: "wrap", justifyContent: "center" }}>
-        <CloudTag>회장님의 깜짝 발언</CloudTag>
-        <CloudTag>사무실 전체 정적</CloudTag>
-      </div>
-    </StoryScene>
-  );
-}
-
-/* 결과4: 분위기 역전 */
-function Story4({ name, mission, outfit, onNext }){
-  return (
-    <StoryScene bgGrad={mission.bgGrad} onNext={onNext} nextLabel="다음" backgroundImage="logo/어서오세요.png">
-      <div style={{ transform: "rotate(0deg)" }}>
-        <RexCharacter src={IMG.BOSS_REX_1} size={140} />
-      </div>
-      <div style={{ display: "flex", gap: 6, flexWrap: "wrap", justifyContent: "center" }}>
-        <CloudTag>우리 회사의 미래입니다!</CloudTag>
-        <CloudTag>앞으로 잘 부탁드립니다!</CloudTag>
-        <CloudTag>역시 보는 눈이 있으셨습니다!</CloudTag>
-      </div>
-      <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 12, paddingRight: 10 }}>
-        <img
-          src="logo/내가 알고 보니 숨겨진 인재.png"
-          alt="내가 알고 보니 숨겨진 인재"
-          style={{ width: "76%", maxWidth: 240, objectFit: "contain" }}
-          draggable="false"
-        />
-      </div>
-    </StoryScene>
+    </div>
   );
 }
 
@@ -1318,18 +1754,17 @@ function FinalScreen({ name, onRestart }){
     if (!window.html2canvas || !captureRef.current) return;
     setIsSaving(true);
     setSaveError(false);
-    window.html2canvas(captureRef.current, { backgroundColor: "#F7F5EF", scale: 2, useCORS: true }).then((canvas) => {
+    window.html2canvas(captureRef.current, { backgroundColor: "#fff", scale: 2, useCORS: true }).then((canvas) => {
       const dataUrl = canvas.toDataURL("image/png");
       setSavedUrl(dataUrl);
-      // 다운로드 자동 시도 (환경에 따라 동작하지 않을 수 있어 아래 미리보기로 보완)
       try {
         const link = document.createElement("a");
-        link.download = `LXI_상사맨_${name || "신입"}.png`;
+        link.download = `LXI_완료화면_${name || "신입"}.png`;
         link.href = dataUrl;
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
-      } catch (e) { /* 자동 다운로드 실패 시 미리보기 모달로 대체 */ }
+      } catch (e) {}
       setIsSaving(false);
     }).catch(() => {
       setIsSaving(false);
@@ -1338,44 +1773,31 @@ function FinalScreen({ name, onRestart }){
   };
 
   return (
-    <div className="screen scene-fade" style={{ alignItems: "center", textAlign: "center", gap: 14, background: "linear-gradient(180deg,#fff7d6,#ffe9a8)" }}>
-      <TopLogo size={56} />
-      <div ref={captureRef} style={{ width: "100%", padding: "18px 10px", background: "linear-gradient(180deg,#fff7d6,#ffe9a8)", borderRadius: 18 }}>
-        <div className="tilt">
-          <span className="caption-text" style={{ fontSize: 26, color: "#111" }}>상사맨 성장 완료<span className="bang">!</span></span>
-        </div>
-        <div style={{ position: "relative", display: "inline-block", marginTop: 10 }}>
-          <RexCharacter src={NEW_SUIT_REX} mood="sparkle" size={210} />
-          <img
-            src={MISSION_COMPLETE_STAMP}
-            alt="미션완료"
-            style={{ position: "absolute", bottom: 0, left: "50%", transform: "translateX(-50%)", width: "78%", pointerEvents: "none" }}
-          />
-        </div>
-        <p style={{ fontSize: 15, color: "#333", margin: "12px 0", whiteSpace: "pre-line" }}>
-          {withName("완벽한 센스로\nLX인터내셔널의 글로벌 미래를 이끌어갈 준비가 된 당신!\n\n멋진 상사맨으로 성장할 자격이 충분합니다.", name)}
-        </p>
-        <div style={{ width: "100%", border: "3px dashed var(--blue)", borderRadius: 14, padding: 14, background: "#fff", marginTop: 8 }}>
-        <p style={{ margin: "0 0 6px", fontWeight: 700, color: "#333" }}>🎟️ 행운의 복권 교환권</p>
-        <div style={{ height: 90, borderRadius: 10, background: "linear-gradient(135deg,#fff7d6,#ffe082)", border: "2px solid #d8a300", position: "relative", overflow: "hidden", display: "flex", alignItems: "center", justifyContent: "center" }}>
-          <div style={{ position: "absolute", inset: 0, background: "repeating-linear-gradient(45deg, rgba(0,0,0,0.04) 0 8px, rgba(255,255,255,0.4) 8px 16px)", pointerEvents: "none" }} />
-          <div style={{ position: "relative", textAlign: "center", color: "#6b3f00", fontWeight: 700, lineHeight: 1.4 }}>
-            <div style={{ fontSize: 15 }}>행운의 복권</div>
-            <div style={{ fontSize: 13, marginTop: 4 }}>스크래치 영역</div>
-            <div style={{ fontSize: 11, marginTop: 6, opacity: 0.9 }}>당첨 시 교환 가능</div>
-          </div>
-        </div>
-      </div>
-        <p style={{ fontSize: 13, color: "#555", margin: "12px 0 0" }}>
-          이 완료 화면을 LX인터내셔널 리크루팅 부스 담당자에게 보여주시면 기념품을 드립니다!
-        </p>
+    <div className="screen scene-fade" style={{ position: "relative", alignItems: "center", textAlign: "center", gap: 18, background: "#000", overflow: "hidden", padding: 0 }}>
+      <div
+        ref={captureRef}
+        style={{
+          position: "absolute",
+          inset: 0,
+          width: "100%",
+          height: "100%",
+          overflow: "hidden",
+          zIndex: 0,
+        }}
+      >
+        <img
+          src="result/real_finish.png"
+          alt="완료 화면"
+          style={{ position: "absolute", inset: 0, width: "100%", height: "100%", display: "block", objectFit: "cover", objectPosition: "center" }}
+          draggable="false"
+        />
       </div>
 
-      <div style={{ display: "flex", gap: 10, width: "100%" }}>
-        <button className="btn btn-secondary" style={{ flex: 1 }} onClick={handleSave} disabled={isSaving} aria-label="화면 저장">
+      <div style={{ position: "relative", zIndex: 1, width: "100%", padding: "24px 20px 32px", display: "flex", gap: 10, justifyContent: "center", flexWrap: "wrap" }}>
+        <button className="btn btn-secondary" style={{ flex: "1 1 160px", minWidth: 140 }} onClick={handleSave} disabled={isSaving} aria-label="화면 저장">
           {isSaving ? "저장 중..." : "화면 저장"}
         </button>
-        <button className="btn btn-primary" style={{ flex: 1 }} onClick={onRestart} aria-label="처음부터 다시">
+        <button className="btn btn-primary" style={{ flex: "1 1 160px", minWidth: 140 }} onClick={onRestart} aria-label="처음부터 다시">
           처음부터 다시
         </button>
       </div>
@@ -1386,23 +1808,23 @@ function FinalScreen({ name, onRestart }){
 
       {savedUrl && (
         <div className="modal-overlay" onClick={() => setSavedUrl(null)}>
-          <div className="modal-box" role="dialog" aria-modal="true" aria-label="완료 화면 저장" onClick={(e) => e.stopPropagation()} style={{ maxWidth: 320 }}>
+          <div className="modal-box" role="dialog" aria-modal="true" aria-label="완료 화면 저장" onClick={(e) => e.stopPropagation()} style={{ maxWidth: 360 }}>
             <p className="caption-text dark" style={{ fontSize: 17, margin: "2px 0 10px" }}>이미지가 준비됐어요!</p>
             <img src={savedUrl} alt="완료 화면 미리보기" style={{ width: "100%", borderRadius: 12, border: "3px solid var(--ink)", marginBottom: 10 }} />
             <p style={{ fontSize: 13, color: "#555", margin: "0 0 14px" }}>
-              자동 저장이 안 됐다면, 이미지를 <strong>길게 눌러 '이미지 저장'</strong>을 선택하거나(모바일) <strong>마우스 우클릭 후 '이미지 저장'</strong>을 선택해주세요(PC).
+              자동 저장이 안 됐다면 이미지를 길게 눌러 저장하거나(모바일) 마우스 우클릭 후 저장해주세요.
             </p>
             <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
               <a
                 className="btn btn-primary"
                 href={savedUrl}
-                download={`LXI_상사맨_${name || "신입"}.png`}
+                download={`LXI_완료화면_${name || "신입"}.png`}
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="새 탭에서 이미지 열기"
                 style={{ textDecoration: "none" }}
               >
-                새 탭에서 크게 보기
+                새 탭에서 열기
               </a>
               <button className="btn btn-secondary" onClick={() => setSavedUrl(null)} aria-label="닫기">닫기</button>
             </div>
@@ -1476,13 +1898,7 @@ function App(){
       content = <Story1 name={name} mission={mission} outfit={outfit} onNext={() => goTo("story2")} />;
       break;
     case "story2":
-      content = <Story2 onNext={() => goTo("story3")} />;
-      break;
-    case "story3":
-      content = <Story3 name={name} mission={mission} onNext={() => goTo("story4")} />;
-      break;
-    case "story4":
-      content = <Story4 name={name} mission={mission} outfit={outfit} onNext={() => goTo("final")} />;
+      content = <Story2 onNext={() => goTo("final")} />;
       break;
     case "final":
       content = <FinalScreen name={name} onRestart={handleRestart} />;
@@ -1496,6 +1912,7 @@ function App(){
       {content}
       {confirmOpen && mission && (
         <ConfirmModal
+          mission={mission}
           outfit={outfit}
           onConfirm={() => { setConfirmOpen(false); goTo("story1"); }}
           onCancel={() => setConfirmOpen(false)}
