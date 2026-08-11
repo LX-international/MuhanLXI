@@ -92,7 +92,6 @@
   font-size:12px;
   text-shadow: 0 0 0.8px #1326A1;
   -webkit-text-stroke:0.5px #FFFFFF !important;
-  text-stroke:0.5px #FFFFFF !important;
 }
 .check-outfit-actions{
   position:absolute;
@@ -112,7 +111,7 @@
 *{box-sizing:border-box;}
 html,body{margin:0;padding:0;background:#1b1b1b;}
 body{
-  font-family:'Jua','Black Han Sans',sans-serif;
+  font-family:'Inter',sans-serif;
   -webkit-tap-highlight-color:transparent;
   overscroll-behavior:none;
   word-break:keep-all;
@@ -240,19 +239,24 @@ p, span, div, button, label, h1, h2, h3{
 
 /* ---------- buttons ---------- */
 .btn{
-  min-height:48px;
-  border:none;
-  border-radius:14px;
-  font-family:'Jua',sans-serif;
-  font-size:18px;
+  min-height:40px;
+  border-radius:10px;
+  font-family:'Inter';
+  font-size:16px;
+  font-style: normal;
+  font-weight: 700;
+  line-height: normal;
+  letter-spacing: -0.8px;
   cursor:pointer;
   display:flex; align-items:center; justify-content:center;
   gap:6px;
-  border:3px solid var(--ink);
+  border:2px solid var(--ink);
   transition:transform .12s ease;
+  z-index: 2;
+
 }
 .btn:active{ transform:scale(0.96); }
-.btn-primary{ background:var(--yellow); color:var(--ink); }
+.btn-primary{ background:#FFB808; color:var(--ink); }
 .btn-secondary{ background:#fff; color:var(--ink); }
 .btn-danger{ background:var(--red); color:#fff; }
 .btn:disabled{ opacity:0.5; cursor:not-allowed; }
@@ -278,7 +282,7 @@ p, span, div, button, label, h1, h2, h3{
 }
 
 input[type=text]{
-  font-family:'Jua',sans-serif;
+  font-family:'Inter',sans-serif;
   font-size:18px;
   min-height:48px;
   border-radius:14px;
@@ -336,11 +340,14 @@ input[type=text]:focus-visible{ outline:3px solid var(--blue); outline-offset:2p
   font-size:14px;
 }
 .item-emoji{
-  width:52px;
-  height:52px;
+  width: 90px;
+  height:90px;
   object-fit:contain;
 }
-.item-name{ font-size:14px; text-align:center; color:var(--ink); word-break:keep-all; }
+.item-name{ font-size:16px; font-style: normal;
+  font-weight: 700;
+  line-height: normal;
+  letter-spacing: -0.8px; font-family: "Inter",sans-serif; text-align:center; color:var(--ink); word-break:keep-all; }
 .selected-slots{
   display:grid;
   grid-template-columns:repeat(3, minmax(0, 1fr));
@@ -391,7 +398,7 @@ input[type=text]:focus-visible{ outline:3px solid var(--blue); outline-offset:2p
 .tabbar{ display:flex; gap:8px; }
 .tab-btn{
   flex:1; min-height:48px; border-radius:12px; border:3px solid var(--ink);
-  background:#fff; font-family:'Jua',sans-serif; font-size:16px; cursor:pointer;
+  background:#fff; font-family:'Inter',sans-serif; font-size:16px; cursor:pointer;
 }
 .tab-btn.active{ background:var(--blue); color:#fff; }
 
@@ -413,6 +420,7 @@ input[type=text]:focus-visible{ outline:3px solid var(--blue); outline-offset:2p
   position:fixed; left:50%; top:50%; transform:translate(-50%,-50%);
   width:358px; height:358px; max-width:calc(100vw - 24px); max-height:calc(100vh - 24px);
   z-index:9999; pointer-events:none; display:flex; align-items:center; justify-content:center;
+  animation: shakepop 1.5s ease forwards;
 }
 .error-overlay img{
   width:100%; height:100%; object-fit:contain; display:block;
@@ -1076,7 +1084,7 @@ function NameInputScreen({ name, setName, onSubmit }){
           border: "3px solid #000",
           background: "#FFF",
           padding: "0 14px",
-          fontFamily: "Jua, sans-serif",
+          fontFamily: "Inter, sans-serif",
           fontSize: 18,
           zIndex: 2,
         }}
@@ -1329,13 +1337,13 @@ function DressUpScreen({ mission, outfit, setOutfit, onSubmit }){
   const handleItemSelect = (item) => {
     const errorAssetPath = getErrorAssetPath(item.id);
     if (errorAssetPath) {
+      if (errorTimeoutRef.current) clearTimeout(errorTimeoutRef.current);
       setErrorOverlayItemId(item.id);
       setErrorActiveItemId(item.id);
-      if (errorTimeoutRef.current) clearTimeout(errorTimeoutRef.current);
       errorTimeoutRef.current = setTimeout(() => {
         setErrorOverlayItemId(null);
         setErrorActiveItemId(null);
-      }, 2000);
+      }, 1500);
       return;
     }
 
@@ -1429,31 +1437,82 @@ function DressUpScreen({ mission, outfit, setOutfit, onSubmit }){
             margin: "0 auto",
           }}
         />
+        
+        {outfit.top && (
+          <img
+            src={getItemImagePath(outfit.top)}
+            alt={outfit.top.name}
+            draggable="false"
+            style={{
+              position: "absolute",
+              left: "calc(50% - 90px)",
+              top: "20px",
+              width: "80px",
+              height: "80px",
+              objectFit: "contain",
+              pointerEvents: "none",
+            }}
+          />
+        )}
+        
+        {outfit.bottom && (
+          <img
+            src={getItemImagePath(outfit.bottom)}
+            alt={outfit.bottom.name}
+            draggable="false"
+            style={{
+              position: "absolute",
+              right: "calc(50% - 90px)",
+              top: "130px",
+              width: "80px",
+              height: "80px",
+              objectFit: "contain",
+              pointerEvents: "none",
+            }}
+          />
+        )}
+        
+        {outfit.accessory && (
+          <img
+            src={getItemImagePath(outfit.accessory)}
+            alt={outfit.accessory.name}
+            draggable="false"
+            style={{
+              position: "absolute",
+              left: "calc(50% - 90px)",
+              bottom: "20px",
+              width: "80px",
+              height: "80px",
+              objectFit: "contain",
+              pointerEvents: "none",
+            }}
+          />
+        )}
       </div>
 
       {errorOverlayImage && (
-        <div className="error-overlay" role="status" aria-live="polite">
+        <div key={errorOverlayItemId} className="error-overlay" role="status" aria-live="polite">
           <img src={errorOverlayImage} alt="오류 아이템" draggable="false" />
         </div>
       )}
 
       <div
-        className="selection-container"
         style={{
           position: "absolute",
           left: "50%",
-          bottom: 110,
           transform: "translateX(-50%)",
+          bottom: 92,
           zIndex: 4,
           display: "flex",
           flexDirection: "column",
           alignItems: "center",
-          gap: 20,
+          gap: 8,
           width: "calc(100% - 40px)",
           maxWidth: 360,
+          pointerEvents: "none",
         }}
       >
-        <div style={{ display: "flex", justifyContent: "center", gap: "5.65px", alignItems: "flex-end" }}>
+        <div style={{ display: "flex", justifyContent: "center", gap: "5.65px", alignItems: "flex-end", pointerEvents: "auto" }}>
           {categoryButtons.map((button) => {
             const isSelected = selectedCategory === button.key;
             const src = isSelected ? button.chooseSvg : button.defaultSvg;
@@ -1487,13 +1546,15 @@ function DressUpScreen({ mission, outfit, setOutfit, onSubmit }){
             );
           })}
         </div>
-
+        
         <div
           style={{
-            width: "100%",
+            width: "calc(100% - 30px)",
+            
             display: "grid",
             gridTemplateColumns: "1fr 1fr",
             gap: 10,
+            pointerEvents: "auto",
           }}
         >
           {visibleItems.map((item) => {
@@ -1522,19 +1583,24 @@ function DressUpScreen({ mission, outfit, setOutfit, onSubmit }){
             );
           })}
         </div>
-
-        <button
-          className="btn btn-primary"
-          style={{
-            width: "100%",
-            marginTop: 0,
-          }}
-          onClick={handleSubmit}
-          aria-label="이대로 출근"
-        >
-          이대로 출근!
-        </button>
       </div>
+
+      <button
+        className="btn btn-primary"
+        style={{
+          position: "absolute",
+          left: "50%",
+          bottom: 34,
+          transform: "translateX(-50%)",
+          width: "calc(100% - 40px)",
+          maxWidth: 330,
+          zIndex: 5,
+        }}
+        onClick={handleSubmit}
+        aria-label="이대로 출근"
+      >
+        이대로 출근!
+      </button>
     </div>
   );
 }
@@ -1579,6 +1645,7 @@ function ConfirmModal({ mission, outfit, onConfirm, onCancel }){
                 opacity: 1,
                 fontWeight: 900,
                 fontSize: fitLabelSize(topName),
+                fontFamily: "Inter, sans-serif",
               }}
             >
               {topName}
@@ -1595,6 +1662,7 @@ function ConfirmModal({ mission, outfit, onConfirm, onCancel }){
                 opacity: 1,
                 fontWeight: 900,
                 fontSize: fitLabelSize(bottomName),
+                fontFamily: "Inter, sans-serif",
               }}
             >
               {bottomName}
@@ -1611,6 +1679,7 @@ function ConfirmModal({ mission, outfit, onConfirm, onCancel }){
                 opacity: 1,
                 fontWeight: 900,
                 fontSize: fitLabelSize(accessoryName),
+                fontFamily: "Inter, sans-serif",
               }}
             >
               {accessoryName}
@@ -1618,7 +1687,13 @@ function ConfirmModal({ mission, outfit, onConfirm, onCancel }){
           </div>
         </div>
         <div className="check-outfit-actions">
-          <button className="btn btn-primary" onClick={onConfirm} aria-label="이대로 출근">이대로 출근</button>
+          <button
+            className="btn btn-primary"
+            onClick={onConfirm}
+            aria-label="이대로 출근"
+          >
+            이대로 출근
+          </button>
           <button className="btn btn-secondary" onClick={onCancel} aria-label="다시 고르기">다시 고르기</button>
         </div>
       </div>
