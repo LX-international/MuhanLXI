@@ -69,29 +69,29 @@
   pointer-events:none;
 }
 .check-outfit-item-label{
-  width:62px;
-  height:25px;
-  background:#E3E9EE;
-  border:1.5px solid #4AB1E7;
-  border-radius:7px;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  text-align:center;
-  white-space:nowrap;
-  overflow:hidden;
+  min-width: 62px;   
+  padding: 0 8px;   
+  width: max-content; 
+  
+  height: 25px;
+  background: #E3E9EE;
+  border: 2px solid #4AB1E7;
+  border-radius: 7px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
 }
 .check-outfit-item-label span,
 .outfit-item-name {
   color:#1326A1 !important;
   opacity:1 !important;
-  -webkit-text-fill-color:#1326A1 !important;
-  text-fill-color:#1326A1 !important;
   font-weight:900;
   line-height:1;
   font-size:12px;
   text-shadow: 0 0 0.8px #1326A1;
-  -webkit-text-stroke:0.5px #FFFFFF !important;
 }
 .check-outfit-actions{
   position:absolute;
@@ -617,8 +617,8 @@ const MISSIONS = [
       bottom: [
         { id: "mission2_b1", name: "한복 바지", category: "bottom", emoji: "👘", image: "lex_clothes/misson2_b1.svg", isTrap: true, comment: "전통도 좋지만, 오늘은 미래사업 발표다!" },
         { id: "mission2_b2", name: "슬랙스", category: "bottom", emoji: "👔", image: "lex_clothes/misson2_b2.svg" },
-        { id: "mission2_b3", name: "조거 팬츠", category: "bottom", emoji: "👖", image: "lex_clothes/misson2_b3.svg" },
-        { id: "mission2_b4", name: "테이퍼드 팬츠", category: "bottom", emoji: "👖", image: "lex_clothes/misson2_b4.svg" },
+        { id: "mission2_b3", name: "테이퍼드 팬츠", category: "bottom", emoji: "👖", image: "lex_clothes/misson2_b3.svg" },
+        { id: "mission2_b4", name: "숏팬츠", category: "bottom", emoji: "👖", image: "lex_clothes/misson2_b4.svg" },
       ],
       accessory: [
         { id: "mission2_a1", name: "프레젠터", category: "accessory", emoji: "🖱️", image: "lex_clothes/misson2_a1.svg" },
@@ -1639,12 +1639,12 @@ function ConfirmModal({ mission, outfit, onConfirm, onCancel }){
               className="outfit-item-name"
               style={{
                 color: "#1326A1",
-                WebkitTextFillColor: "#1326A1",
-                WebkitTextStroke: "0.5px #FFFFFF",
-                textStroke: "0.5px #FFFFFF",
+                paintOrder: "stroke fill",
+                WebkitTextStroke: "5px #FFFFFF",
+                
                 opacity: 1,
-                fontWeight: 900,
-                fontSize: fitLabelSize(topName),
+                fontWeight: 500,
+                fontSize: "12px",
                 fontFamily: "Inter, sans-serif",
               }}
             >
@@ -1656,12 +1656,12 @@ function ConfirmModal({ mission, outfit, onConfirm, onCancel }){
               className="outfit-item-name"
               style={{
                 color: "#1326A1",
-                WebkitTextFillColor: "#1326A1",
-                WebkitTextStroke: "0.5px #FFFFFF",
-                textStroke: "0.5px #FFFFFF",
+                paintOrder: "stroke fill",
+                WebkitTextStroke: "5px #FFFFFF",
+                
                 opacity: 1,
-                fontWeight: 900,
-                fontSize: fitLabelSize(bottomName),
+                fontWeight: 500,
+                fontSize: "12px",
                 fontFamily: "Inter, sans-serif",
               }}
             >
@@ -1673,12 +1673,12 @@ function ConfirmModal({ mission, outfit, onConfirm, onCancel }){
               className="outfit-item-name"
               style={{
                 color: "#1326A1",
-                WebkitTextFillColor: "#1326A1",
-                WebkitTextStroke: "0.5px #FFFFFF",
-                textStroke: "0.5px #FFFFFF",
+                paintOrder: "stroke fill",
+                WebkitTextStroke: "5px #FFFFFF",
+                
                 opacity: 1,
-                fontWeight: 900,
-                fontSize: fitLabelSize(accessoryName),
+                fontWeight: 500,
+                fontSize: "12px",
                 fontFamily: "Inter, sans-serif",
               }}
             >
@@ -1786,7 +1786,7 @@ function Story1({ name, mission, outfit, onNext }){
         />
       </div>
 
-      <div style={{ position: "absolute", left: "50%", bottom: 140, transform: "translateX(-50%)", width: 362, display: "flex", justifyContent: "center" }}>
+      <div style={{ position: "absolute", left: "50%", bottom: 36, transform: "translateX(-50%)", width: 362, display: "flex", justifyContent: "center" }}>
         <button className="btn btn-primary" style={{ width: "100%" }} onClick={handleNext} aria-label="넘어가기">
           넘어가기
         </button>
@@ -1798,8 +1798,8 @@ function Story1({ name, mission, outfit, onNext }){
 /* 결과2: 결과 토운 */
 function Story2({ onNext }){
   return (
-    <div className="screen scene-fade" style={{ background: "#000", color: "#fff", justifyContent: "center", alignItems: "center", textAlign: "center" }}>
-      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", width: "100%", maxWidth: 395, gap: 30, padding: "24px 0" }}>
+    <div className="screen scene-fade" style={{ position: "relative", background: "#000", color: "#fff", justifyContent: "center", alignItems: "center", textAlign: "center" }}>
+      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", width: "100%", maxWidth: 395, gap: 30, padding: "24px 20px 92px" }}>
         <div style={{ width: "100%", background: "#000", display: "flex", justifyContent: "center" }}>
           <img
             src="result/frame59.png"
@@ -1808,6 +1808,8 @@ function Story2({ onNext }){
             draggable="false"
           />
         </div>
+      </div>
+      <div style={{ position: "absolute", left: "50%", bottom: 36, transform: "translateX(-50%)", width: "calc(100% - 40px)", maxWidth: 395, padding: "0 20px" }}>
         <button className="btn btn-primary" style={{ width: "100%" }} onClick={onNext} aria-label="결과 화면 보기">
           결과 화면 보기
         </button>
@@ -1868,7 +1870,7 @@ function FinalScreen({ name, onRestart }){
         />
       </div>
 
-      <div style={{ position: "absolute", left: 0, right: 0, top: "auto", bottom: 24, zIndex: 1, width: "100%", padding: "0 20px", display: "flex", gap: 10, justifyContent: "center", flexWrap: "wrap" }}>
+      <div style={{ position: "absolute", left: 0, right: 0, top: "auto", bottom: 36, zIndex: 1, width: "100%", padding: "0 20px", display: "flex", gap: 10, justifyContent: "center", flexWrap: "wrap" }}>
         <button className="btn btn-secondary" style={{ flex: "1 1 160px", minWidth: 140 }} onClick={handleSave} disabled={isSaving} aria-label="화면 저장">
           {isSaving ? "저장 중..." : "화면 저장"}
         </button>
@@ -1938,7 +1940,7 @@ function App(){
     setOutfit({ top: null, bottom: null, accessory: null });
     setMission(null);
     setConfirmOpen(false);
-    goTo("name");
+    goTo("start");
   };
 
   let content = null;
