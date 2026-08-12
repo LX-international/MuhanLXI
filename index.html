@@ -135,7 +135,7 @@ p, span, div, button, label, h1, h2, h3{
   min-width:0;
   min-height:100svh;
   position:relative;
-  background:var(--paper);
+  background: #e2d0bc;
   overflow-x:hidden;
   display:flex;
   flex-direction:column;
@@ -237,6 +237,43 @@ p, span, div, button, label, h1, h2, h3{
   *{ animation-duration:0.01ms !important; animation-iteration-count:1 !important; transition-duration:0.01ms !important; }
 }
 
+/* 1번 말풍선: 확대→축소 2번 반복 */
+@keyframes ment-pulse {
+  0%, 100% { transform: scale(1); }
+  25% { transform: scale(1.12); }
+  50% { transform: scale(1); }
+  75% { transform: scale(1.12); }
+}
+.ment-1 {
+  animation: ment-pulse 1.6s ease-in-out 0.3s both;
+}
+.ment-pulse {                                        /* ★ 추가 */
+  animation: ment-pulse 1.6s ease-in-out 0.3s both;
+}
+
+/* 2번 말풍선: 좌우로 살짝 2번 흔들림 */
+@keyframes ment-shake {
+  0%, 100% { transform: translateX(0); }
+  15% { transform: translateX(-6px); }
+  30% { transform: translateX(6px); }
+  45% { transform: translateX(-6px); }
+  60% { transform: translateX(6px); }
+  75% { transform: translateX(0); }
+}
+.ment-2 {
+  animation: ment-shake 1.2s ease-in-out 2.3s both;
+}
+
+/* 3번 말풍선: 우측에서 확대된 채로 날아와 박힘 */
+@keyframes ment-fly-in {
+  0% { transform: translateX(120px) scale(1.5); opacity: 0; }
+  70% { transform: translateX(-8px) scale(0.96); opacity: 1; }
+  100% { transform: translateX(0) scale(1); opacity: 1; }
+}
+.ment-3 {
+  animation: ment-fly-in 0.6s cubic-bezier(0.22, 1, 0.36, 1) 4.3s both;
+}
+
 /* ---------- buttons ---------- */
 .btn{
   min-height:40px;
@@ -262,15 +299,7 @@ p, span, div, button, label, h1, h2, h3{
 .btn:disabled{ opacity:0.5; cursor:not-allowed; }
 .btn:focus-visible{ outline:3px solid var(--blue); outline-offset:2px; }
 
-/* ---------- fade/scene transition ---------- */
-.scene-fade{
-  animation: fadein .35s cubic-bezier(.2,.8,.2,1);
-  will-change: opacity, transform;
-}
-@keyframes fadein{
-  from{ opacity:0; transform:translateY(6px) scale(0.985); }
-  to{ opacity:1; transform:translateY(0) scale(1); }
-}
+
 
 .screen{
   flex:1;
@@ -453,6 +482,16 @@ input[type=text]:focus-visible{ outline:3px solid var(--blue); outline-offset:2p
 .shakecard{ animation: cardshake 0.12s ease-in-out infinite; }
 @keyframes cardshake{ 0%,100%{ transform:translateX(0);} 25%{ transform:translateX(-6px) rotate(-2deg);} 75%{ transform:translateX(6px) rotate(2deg);} }
 
+/* 베이스 컷 등장 애니메이션 (페이드 + 살짝 위로) */
+@keyframes cut-appear {
+  0% { opacity: 0; transform: translateY(12px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+.cut-1 { animation: cut-appear 0.5s ease-out 0s both; }
+.cut-2 { animation: cut-appear 0.5s ease-out 2s both; }
+.cut-3 { animation: cut-appear 0.5s ease-out 4s both; }
+
 .progress-touch-hint{
   position:absolute; bottom:14px; right:16px; font-size:12px; color:#bbb;
 }
@@ -464,6 +503,7 @@ input[type=text]:focus-visible{ outline:3px solid var(--blue); outline-offset:2p
 ::selection{ background:var(--yellow); }
 </style>
 </head>
+
 <body>
 <div id="root"></div>
 
@@ -1785,6 +1825,7 @@ function Story1({ name, mission, outfit, onNext }){
           className="result-water"
           draggable="false"
           aria-hidden="true"
+          z-index={3}
         />
       )}
 
@@ -1836,14 +1877,43 @@ function Story2({ onNext }){
   return (
     <div className="screen scene-fade" style={{ position: "relative", background: "#000", color: "#fff", justifyContent: "center", alignItems: "center", textAlign: "center" }}>
       <div style={{ display: "flex", flexDirection: "column", alignItems: "center", width: "100%", maxWidth: 395, gap: 30, padding: "24px 20px 92px" }}>
-        <div style={{ width: "100%", background: "#000", display: "flex", justifyContent: "center" }}>
-          <img
-            src="result/frame59.png"
-            alt="결과 이미지"
-            style={{ width: "100%", height: "auto", display: "block", objectFit: "contain" }}
-            draggable="false"
-          />
-        </div>
+
+        {/* 컷 1 */}
+        <div className="cut-1" style={{ position: "relative", width: "100%", maxWidth: 395 }}>
+  <img src="result/finalStory_1.svg" alt="결과 컷 1" style={{ width: "100%", height: "auto", display: "block" }} draggable="false" />
+  <img
+    src="result/finalStory_1_ment.svg"
+    alt=""
+    className="ment-1"
+    style={{ position: "absolute", top: "8%", left: "8%", width: "45%", height: "auto", pointerEvents: "none" }}
+    draggable="false"
+  />
+</div>
+
+        {/* 컷 2 */}
+        <div className="cut-2" style={{ position: "relative", width: "100%", maxWidth: 395 }}>
+  <img src="result/finalStory_2.svg" alt="결과 컷 2" style={{ width: "100%", height: "auto", display: "block" }} draggable="false" />
+  <img
+    src="result/finalStory_2_ment.svg"
+    alt=""
+    className="ment-2"
+    style={{ position: "absolute", top: "40%", right: "1%", width: "45%", height: "auto", pointerEvents: "none" }}
+    draggable="false"
+  />
+</div>
+
+        {/* 컷 3 */}
+        <div className="cut-3" style={{ position: "relative", width: "100%", maxWidth: 395 }}>
+  <img src="result/finalStory_3.svg" alt="결과 컷 3" style={{ width: "100%", height: "auto", display: "block" }} draggable="false" />
+  <img
+    src="result/finalStory_3_ment.svg"
+    alt=""
+    className="ment-3"
+    style={{ position: "absolute", top: "6%", right: "1%", width: "45%", height: "auto", pointerEvents: "none" }}
+    draggable="false"
+  />
+</div>
+
       </div>
       <div style={{ position: "absolute", left: "50%", bottom: 36, transform: "translateX(-50%)", width: "calc(100% - 40px)", maxWidth: 395, padding: "0 20px" }}>
         <button className="btn btn-primary" style={{ width: "100%" }} onClick={onNext} aria-label="결과 화면 보기">
@@ -1853,6 +1923,7 @@ function Story2({ onNext }){
     </div>
   );
 }
+
 
 /* ============================================================
    최종 완료 화면
@@ -1899,12 +1970,31 @@ function FinalScreen({ name, onRestart }){
         }}
       >
         <img
-          src="result/real_finish.png"
+          src="result/finish_bg.svg"
           alt="완료 화면"
           style={{ position: "absolute", inset: 0, width: "100%", height: "100%", display: "block", objectFit: "cover", objectPosition: "center" }}
           draggable="false"
         />
       </div>
+      <div
+        style={{
+          position: "absolute",
+          top: "5%",
+          left: "50%",
+          transform: "translateX(-50%)",   // 가운데 정렬은 여기서만 담당
+          width: "70%",
+          zIndex: 1,
+          pointerEvents: "none",
+        }}
+      >
+        <img
+          src="result/finish_ment.svg"
+          alt=""
+          className="ment-pulse"           // scale 애니메이션은 img 자신의 transform만 사용
+          style={{ width: "100%", height: "auto", display: "block" }}
+          draggable="false"
+        />
+</div>
 
       <div style={{ position: "absolute", left: 0, right: 0, top: "auto", bottom: 36, zIndex: 1, width: "100%", padding: "0 20px", display: "flex", gap: 10, justifyContent: "center", flexWrap: "wrap" }}>
         <button className="btn btn-secondary" style={{ flex: "1 1 160px", minWidth: 140 }} onClick={handleSave} disabled={isSaving} aria-label="화면 저장">
@@ -1947,6 +2037,7 @@ function FinalScreen({ name, onRestart }){
     </div>
   );
 }
+
 
 /* ============================================================
    최상위 App
