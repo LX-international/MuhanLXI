@@ -21,6 +21,13 @@
   --paper-soft:#EFEDE5;
 }
 
+.scene-frame{
+  position: relative;
+  width: 100%;
+  min-height: 852px;   /* 세로는 디자인 원본 그대로 고정 */
+  overflow: hidden;
+}
+
 .outfit-check-overlay{
   position:fixed;
   inset:0;
@@ -1375,7 +1382,7 @@ function DressUpScreen({ name, mission, outfit, onSubmit }){
     { key: "acce", label: "ACCE", defaultSvg: "lex_clothes_background/button_acce.svg", chooseSvg: "lex_clothes_background/button_acce_choose.svg" },
   ];
 
-    useEffect(() => {
+  useEffect(() => {
     setDraftOutfit(outfit || {});
   }, [mission?.id]);
 
@@ -1423,7 +1430,7 @@ function DressUpScreen({ name, mission, outfit, onSubmit }){
 
   return (
     <div
-      className="screen scene-fade"
+      className="screen scene-frame scene-fade"
       style={{
         gap: 14,
         paddingBottom: 24,
@@ -1442,7 +1449,7 @@ function DressUpScreen({ name, mission, outfit, onSubmit }){
           draggable="false"
           style={{
             position: "absolute",
-            left: "calc(100% - 15px)",
+            left: "calc(100% - 3.8%)",
             bottom: 524,
             transform: "translateX(-100%)",
             width: "auto",
@@ -1489,13 +1496,13 @@ function DressUpScreen({ name, mission, outfit, onSubmit }){
           draggable="false"
           style={{
             display: "block",
-            width: 260,
+            width: "66.2%",
             height: 260,
             objectFit: "contain",
             margin: "0 auto",
           }}
         />
-        
+
         {draftOutfit.top && (
           <img
             src={getItemImagePath(draftOutfit.top)}
@@ -1503,16 +1510,16 @@ function DressUpScreen({ name, mission, outfit, onSubmit }){
             draggable="false"
             style={{
               position: "absolute",
-              left: "calc(50% - 90px)",
+              left: "calc(50% - 22.9%)",
               top: "20px",
-              width: "80px",
+              width: "20.4%",
               height: "80px",
               objectFit: "contain",
               pointerEvents: "none",
             }}
           />
         )}
-        
+
         {draftOutfit.bottom && (
           <img
             src={getItemImagePath(draftOutfit.bottom)}
@@ -1520,16 +1527,16 @@ function DressUpScreen({ name, mission, outfit, onSubmit }){
             draggable="false"
             style={{
               position: "absolute",
-              right: "calc(50% - 90px)",
+              right: "calc(50% - 22.9%)",
               top: "130px",
-              width: "80px",
+              width: "20.4%",
               height: "80px",
               objectFit: "contain",
               pointerEvents: "none",
             }}
           />
         )}
-        
+
         {draftOutfit.accessory && (
           <img
             src={getItemImagePath(draftOutfit.accessory)}
@@ -1537,9 +1544,9 @@ function DressUpScreen({ name, mission, outfit, onSubmit }){
             draggable="false"
             style={{
               position: "absolute",
-              left: "calc(50% - 90px)",
+              left: "calc(50% - 22.9%)",
               bottom: "20px",
-              width: "80px",
+              width: "20.4%",
               height: "80px",
               objectFit: "contain",
               pointerEvents: "none",
@@ -1565,12 +1572,12 @@ function DressUpScreen({ name, mission, outfit, onSubmit }){
           flexDirection: "column",
           alignItems: "center",
           gap: 8,
-          width: "calc(100% - 40px)",
-          maxWidth: 360,
+          width: "calc(100% - 10.2%)",
+          maxWidth: "91.6%",
           pointerEvents: "none",
         }}
       >
-        <div style={{ display: "flex", justifyContent: "center", gap: "5.65px", alignItems: "flex-end", pointerEvents: "auto" }}>
+        <div style={{ display: "flex", justifyContent: "center", gap: "1.44%", alignItems: "flex-end", pointerEvents: "auto" }}>
           {categoryButtons.map((button) => {
             const isSelected = selectedCategory === button.key;
             const src = isSelected ? button.chooseSvg : button.defaultSvg;
@@ -1581,7 +1588,7 @@ function DressUpScreen({ name, mission, outfit, onSubmit }){
                 onClick={() => setSelectedCategory(button.key)}
                 aria-label={button.label}
                 style={{
-                  width: 108,
+                  width: "27.5%",
                   height: 54,
                   padding: 0,
                   border: "none",
@@ -1595,7 +1602,7 @@ function DressUpScreen({ name, mission, outfit, onSubmit }){
                   draggable="false"
                   style={{
                     display: "block",
-                    width: 108,
+                    width: "100%",
                     height: 54,
                     objectFit: "contain",
                   }}
@@ -1604,11 +1611,10 @@ function DressUpScreen({ name, mission, outfit, onSubmit }){
             );
           })}
         </div>
-        
+
         <div
           style={{
-            width: "calc(100% - 30px)",
-            
+            width: "calc(100% - 7.6%)",
             display: "grid",
             gridTemplateColumns: "1fr 1fr",
             gap: 10,
@@ -1650,8 +1656,8 @@ function DressUpScreen({ name, mission, outfit, onSubmit }){
           left: "50%",
           bottom: 34,
           transform: "translateX(-50%)",
-          width: "calc(100% - 40px)",
-          maxWidth: 330,
+          width: "calc(100% - 10.2%)",
+          maxWidth: "84%",
           zIndex: 5,
         }}
         onClick={handleSubmit}
