@@ -1084,9 +1084,14 @@ function NameInputScreen({ name, setName, onSubmit }){
           border: "3px solid #000",
           background: "#FFF",
           padding: "0 14px",
-          fontFamily: "Inter, sans-serif",
+          fontFamily: "Inter",
           fontSize: 18,
           zIndex: 2,
+            fontSize: 16,
+            fontStyle: "normal",
+            fontWeight: 700,
+            lineHeight: "normal",
+            letterSpacing: "-0.8px",
         }}
       />
       <button
@@ -1297,7 +1302,8 @@ const CATS = [
   { key: "accessory", label: "액세서리" },
 ];
 
-function DressUpScreen({ mission, outfit, setOutfit, onSubmit }){
+function DressUpScreen({ name, mission, outfit, onSubmit }){
+  const [draftOutfit, setDraftOutfit] = useState(outfit || {});
   const [selectedCategory, setSelectedCategory] = useState("top");
   const [errorActiveItemId, setErrorActiveItemId] = useState(null);
   const [errorOverlayItemId, setErrorOverlayItemId] = useState(null);
@@ -1320,6 +1326,10 @@ function DressUpScreen({ mission, outfit, setOutfit, onSubmit }){
     { key: "bottom", label: "BOTTOM", defaultSvg: "lex_clothes_background/button_bottom.svg", chooseSvg: "lex_clothes_background/button_bottom_choose.svg" },
     { key: "acce", label: "ACCE", defaultSvg: "lex_clothes_background/button_acce.svg", chooseSvg: "lex_clothes_background/button_acce_choose.svg" },
   ];
+
+    useEffect(() => {
+    setDraftOutfit(outfit || {});
+  }, [mission?.id]);
 
   const categoryMap = { top: "top", bottom: "bottom", acce: "accessory" };
   const currentOutfitKey = categoryMap[selectedCategory];
@@ -1352,15 +1362,15 @@ function DressUpScreen({ mission, outfit, setOutfit, onSubmit }){
     }
     setErrorOverlayItemId(null);
     setErrorActiveItemId(null);
-    setOutfit((prev) => ({ ...prev, [currentOutfitKey]: item }));
+    setDraftOutfit((prev) => ({ ...prev, [currentOutfitKey]: item }));
   };
 
   const handleSubmit = () => {
-    if (!outfit.top || !outfit.bottom || !outfit.accessory) {
+    if (!draftOutfit.top || !draftOutfit.bottom || !draftOutfit.accessory) {
       window.alert("상의, 하의, 액세서리를 모두 선택해주세요!");
       return;
     }
-    onSubmit?.();
+    onSubmit?.(draftOutfit);
   };
 
   return (
@@ -1438,10 +1448,10 @@ function DressUpScreen({ mission, outfit, setOutfit, onSubmit }){
           }}
         />
         
-        {outfit.top && (
+        {draftOutfit.top && (
           <img
-            src={getItemImagePath(outfit.top)}
-            alt={outfit.top.name}
+            src={getItemImagePath(draftOutfit.top)}
+            alt={draftOutfit.top.name}
             draggable="false"
             style={{
               position: "absolute",
@@ -1455,10 +1465,10 @@ function DressUpScreen({ mission, outfit, setOutfit, onSubmit }){
           />
         )}
         
-        {outfit.bottom && (
+        {draftOutfit.bottom && (
           <img
-            src={getItemImagePath(outfit.bottom)}
-            alt={outfit.bottom.name}
+            src={getItemImagePath(draftOutfit.bottom)}
+            alt={draftOutfit.bottom.name}
             draggable="false"
             style={{
               position: "absolute",
@@ -1472,10 +1482,10 @@ function DressUpScreen({ mission, outfit, setOutfit, onSubmit }){
           />
         )}
         
-        {outfit.accessory && (
+        {draftOutfit.accessory && (
           <img
-            src={getItemImagePath(outfit.accessory)}
-            alt={outfit.accessory.name}
+            src={getItemImagePath(draftOutfit.accessory)}
+            alt={draftOutfit.accessory.name}
             draggable="false"
             style={{
               position: "absolute",
@@ -1558,7 +1568,7 @@ function DressUpScreen({ mission, outfit, setOutfit, onSubmit }){
           }}
         >
           {visibleItems.map((item) => {
-            const isSelectedItem = outfit?.[currentOutfitKey]?.id === item.id;
+            const isSelectedItem = draftOutfit?.[currentOutfitKey]?.id === item.id;
             const isErrorItem = Boolean(getErrorAssetPath(item.id));
             const isErrorActiveItem = errorActiveItemId === item.id;
             return (
@@ -1737,9 +1747,10 @@ function StoryScene({ bgGrad, children, onNext, nextLabel = "다음", background
 /* 결과1: 상사의 구박 */
 function Story1({ name, mission, outfit, onNext }){
   const [showBad, setShowBad] = useState(false);
-  const resultBg = mission ? `result/reslut_${mission.id}_bg.svg` : null;
+  const resultBg = mission ? `result/result_${mission.id}_bg.svg` : null;
   const resultImage = showBad ? "result/result_bad.svg" : "result/result_good.svg";
-
+  const finalLexImage = getFinalRightLexAssetPath(mission, outfit); // ★ 추가: 선택한 조합의 캐릭터 이미지
+  
   const handleNext = () => {
     if (!showBad) {
       setShowBad(true);
@@ -1775,6 +1786,31 @@ function Story1({ name, mission, outfit, onNext }){
           draggable="false"
           aria-hidden="true"
         />
+      )}
+
+      {finalLexImage && (
+        <div
+          style={{
+            position: "absolute",
+            left: "41%",
+            top: "24%",              // 배경 기준 세로 위치 (원하는 지점으로 조정)
+            transform: "tran slate(-50%, -50%)",
+            width: 255,
+            height: 255,
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            zIndex: 1,
+            pointerEvents: "none",   // 클릭 방해 방지
+          }}
+        >
+          <img
+            src={finalLexImage}
+            alt="선택한 옷을 입은 렉스"
+            style={{ width: "100%", height: "100%", objectFit: "contain" }}
+            draggable="false"
+          />
+        </div>
       )}
 
       <div style={{ position: "absolute", left: "50%", bottom: 200, transform: "translateX(-50%)", width: 362, height: 182, display: "flex", justifyContent: "center", alignItems: "center" }}>
@@ -1919,7 +1955,8 @@ function App(){
   const [step, setStep] = useState("start");
   const [name, setName] = useState("");
   const [mission, setMission] = useState(null);
-  const [outfit, setOutfit] = useState({ top: null, bottom: null, accessory: null });
+  const [outfit, setDraftOutfit] = useState({ top: null, bottom: null, accessory: null });
+  const [pendingOutfit, setPendingOutfit] = useState(null);
   const [confirmOpen, setConfirmOpen] = useState(false);
   const transitioning = useRef(false);
 
@@ -1937,7 +1974,7 @@ function App(){
   };
 
   const handleRestart = (keepName) => {
-    setOutfit({ top: null, bottom: null, accessory: null });
+    setDraftOutfit({ top: null, bottom: null, accessory: null });
     setMission(null);
     setConfirmOpen(false);
     goTo("start");
@@ -1966,8 +2003,10 @@ function App(){
           name={name}
           mission={mission}
           outfit={outfit}
-          setOutfit={setOutfit}
-          onSubmit={() => setConfirmOpen(true)}
+          onSubmit={(draft) => {    
+        setPendingOutfit(draft);
+        setConfirmOpen(true);
+      }}
         />
       );
       break;
@@ -1988,13 +2027,19 @@ function App(){
     <div className="app-shell">
       {content}
       {confirmOpen && mission && (
-        <ConfirmModal
-          mission={mission}
-          outfit={outfit}
-          onConfirm={() => { setConfirmOpen(false); goTo("story1"); }}
-          onCancel={() => setConfirmOpen(false)}
-        />
-      )}
+  <ConfirmModal
+    mission={mission}
+    outfit={pendingOutfit}          // ★ 확정 전 draft를 보여줌
+    onConfirm={() => {
+      setDraftOutfit(pendingOutfit);     // ★ 여기서만 진짜 확정
+      setConfirmOpen(false);
+      goTo("story1");
+    }}
+    onCancel={() => {
+      setConfirmOpen(false);        // outfit(확정값)은 건드리지 않음, pendingOutfit도 유지되어 다시 열면 그대로 보임
+    }}
+  />
+)}
     </div>
   );
 }
