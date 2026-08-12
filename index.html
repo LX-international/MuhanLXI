@@ -492,6 +492,14 @@ input[type=text]:focus-visible{ outline:3px solid var(--blue); outline-offset:2p
 .cut-2 { animation: cut-appear 0.5s ease-out 2s both; }
 .cut-3 { animation: cut-appear 0.5s ease-out 4s both; }
 
+@keyframes btn-appear {
+  0% { opacity: 0; transform: translate(-50%, 8px); }
+  100% { opacity: 1; transform: translate(-50%, 0); }
+}
+.final-btn {
+  animation: btn-appear 0.4s ease-out both;
+}
+
 .progress-touch-hint{
   position:absolute; bottom:14px; right:16px; font-size:12px; color:#bbb;
 }
@@ -1825,7 +1833,7 @@ function Story1({ name, mission, outfit, onNext }){
           className="result-water"
           draggable="false"
           aria-hidden="true"
-          z-index={3}
+          
         />
       )}
 
@@ -1874,12 +1882,20 @@ function Story1({ name, mission, outfit, onNext }){
 
 /* 결과2: 결과 토운 */
 function Story2({ onNext }){
+  const [showButton, setShowButton] = useState(false);
+
+  useEffect(() => {
+    // 컷3 등장(4s) + 컷3 애니메이션(0.5s) 이후 버튼 노출
+    const timer = setTimeout(() => setShowButton(true), 4500);
+    return () => clearTimeout(timer);
+  }, []);
+
   return (
     <div className="screen scene-fade" style={{ position: "relative", background: "#000", color: "#fff", justifyContent: "center", alignItems: "center", textAlign: "center" }}>
       <div style={{ display: "flex", flexDirection: "column", alignItems: "center", width: "100%", maxWidth: 395, gap: 30, padding: "24px 20px 92px" }}>
 
         {/* 컷 1 */}
-        <div className="cut-1" style={{ position: "relative", width: "100%", maxWidth: 395 }}>
+        <div className="cut-1" style={{ position: "relative", width: "100%", maxWidth: 500 }}>
   <img src="result/finalStory_1.svg" alt="결과 컷 1" style={{ width: "100%", height: "auto", display: "block" }} draggable="false" />
   <img
     src="result/finalStory_1_ment.svg"
@@ -1891,7 +1907,7 @@ function Story2({ onNext }){
 </div>
 
         {/* 컷 2 */}
-        <div className="cut-2" style={{ position: "relative", width: "100%", maxWidth: 395 }}>
+        <div className="cut-2" style={{ position: "relative", width: "100%", maxWidth: 500 }}>
   <img src="result/finalStory_2.svg" alt="결과 컷 2" style={{ width: "100%", height: "auto", display: "block" }} draggable="false" />
   <img
     src="result/finalStory_2_ment.svg"
@@ -1903,7 +1919,7 @@ function Story2({ onNext }){
 </div>
 
         {/* 컷 3 */}
-        <div className="cut-3" style={{ position: "relative", width: "100%", maxWidth: 395 }}>
+        <div className="cut-3" style={{ position: "relative", width: "100%", maxWidth: 500 }}>
   <img src="result/finalStory_3.svg" alt="결과 컷 3" style={{ width: "100%", height: "auto", display: "block" }} draggable="false" />
   <img
     src="result/finalStory_3_ment.svg"
@@ -1915,11 +1931,13 @@ function Story2({ onNext }){
 </div>
 
       </div>
-      <div style={{ position: "absolute", left: "50%", bottom: 36, transform: "translateX(-50%)", width: "calc(100% - 40px)", maxWidth: 395, padding: "0 20px" }}>
-        <button className="btn btn-primary" style={{ width: "100%" }} onClick={onNext} aria-label="결과 화면 보기">
-          결과 화면 보기
-        </button>
-      </div>
+      {showButton && (
+        <div className="final-btn" style={{ position: "absolute", left: "50%", bottom: 36, transform: "translateX(-50%)", width: "calc(100% - 40px)", maxWidth: 450, padding: "0 20px" }}>
+          <button className="btn btn-primary" style={{ width: "100%" }} onClick={onNext} aria-label="결과 화면 보기">
+            결과 화면 보기
+          </button>
+        </div>
+      )}
     </div>
   );
 }
@@ -1980,7 +1998,7 @@ function FinalScreen({ name, onRestart }){
         style={{
           position: "absolute",
           top: "5%",
-          left: "50%",
+          left: "43%",
           transform: "translateX(-50%)",   // 가운데 정렬은 여기서만 담당
           width: "70%",
           zIndex: 1,
@@ -1991,7 +2009,7 @@ function FinalScreen({ name, onRestart }){
           src="result/finish_ment.svg"
           alt=""
           className="ment-pulse"           // scale 애니메이션은 img 자신의 transform만 사용
-          style={{ width: "100%", height: "auto", display: "block" }}
+          style={{ width: "120%", height: "auto", display: "block" }}
           draggable="false"
         />
 </div>
