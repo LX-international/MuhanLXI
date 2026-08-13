@@ -359,10 +359,10 @@ input[type=text]:focus-visible{ outline:3px solid var(--blue); outline-offset:2p
   border:3px solid var(--ink);
   border-radius:14px;
   background:#fff;
-  padding:10px 6px;
+  padding:8px 4px;        /* 10px 6px → 8px 4px */
   display:flex; flex-direction:column; align-items:center; gap:6px;
   cursor:pointer;
-  min-height:48px;
+  min-height:40px;        /* 48px → 40px */
   position:relative;
   font-family:'Jua',sans-serif;
 }
@@ -377,7 +377,7 @@ input[type=text]:focus-visible{ outline:3px solid var(--blue); outline-offset:2p
 }
 .item-emoji{
   width: 90px;
-  height:90px;
+  height: 90px;
   object-fit:contain;
 }
 .item-name{ font-size:16px; font-style: normal;
@@ -1376,6 +1376,12 @@ function DressUpScreen({ name, mission, outfit, onSubmit }){
       ? "lex_clothes_background/eco_pt_command.svg"
       : "lex_clothes_background/indonesia_mine_trip_command.svg";
 
+  const missionMentImage = mission?.id === "mission1"
+  ? "lex_clothes_background/mission1_ment.svg"
+  : mission?.id === "mission2"
+    ? "lex_clothes_background/mission2_ment.svg"
+    : "lex_clothes_background/mission3_ment.svg";
+
   const categoryButtons = [
     { key: "top", label: "TOP", defaultSvg: "lex_clothes_background/button_top.svg", chooseSvg: "lex_clothes_background/button_top_choose.svg" },
     { key: "bottom", label: "BOTTOM", defaultSvg: "lex_clothes_background/button_bottom.svg", chooseSvg: "lex_clothes_background/button_bottom_choose.svg" },
@@ -1462,192 +1468,226 @@ function DressUpScreen({ name, mission, outfit, onSubmit }){
       )}
 
       {missionTagImage && (
-        <img
-          src={missionTagImage}
-          alt=""
-          draggable="false"
-          style={{
-            position: "absolute",
-            top: 70,
-            left: "50%",
-            transform: "translateX(-50%)",
-            width: "auto",
-            maxWidth: "82%",
-            height: "auto",
-            zIndex: 1,
-            pointerEvents: "none",
-          }}
-        />
-      )}
+  <img
+    src={missionTagImage}
+    alt=""
+    draggable="false"
+    style={{
+      position: "absolute",
+      top: 70,
+      left: "50%",
+      transform: "translateX(-50%)",
+      width: "auto",
+      maxWidth: "82%",
+      height: "auto",
+      zIndex: 1,
+      pointerEvents: "none",
+    }}
+  />
+)}
 
-      <div
+{errorOverlayImage && (
+  <div key={errorOverlayItemId} className="error-overlay" role="status" aria-live="polite">
+    <img src={errorOverlayImage} alt="오류 아이템" draggable="false" />
+  </div>
+)}
+
+{/* ★ 렉스 캐릭터+미션멘트 + 카테고리버튼 + 아이템그리드를 하나의 bottom 기준 flex 컨테이너로 통합 */}
+<div
+  style={{
+    position: "absolute",
+    left: "50%",
+    transform: "translateX(-50%)",
+    bottom: 92,
+    zIndex: 4,
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    gap: 1,                          // ★ 렉스 캐릭터 ↔ 카테고리버튼 간격 10px
+    width: "calc(100% - 10.2%)",
+    maxWidth: "91.6%",
+  }}
+>
+  {/* 렉스 캐릭터 + 오른쪽 미션 멘트 */}
+  {/* 렉스 캐릭터 (앞) + 미션 멘트 (뒤, 오른쪽에 1/5 겹침) */}
+<div
+  style={{
+    position: "relative",
+    display: "flex",
+    justifyContent: "center",
+    width: "100%",
+    pointerEvents: "none",
+  }}
+>
+  {missionMentImage && (
+    <img
+      src={missionMentImage}
+      alt=""
+      draggable="false"
+      style={{
+        position: "absolute",
+        left: "70%",              // 렉스 중앙(50%) + 폭의 절반(33.1%) - 겹침분(1/5인 13.24%) ≈ 70%
+        top: "55%",
+        transform: "translateY(-50%)",
+        width: "auto",
+        maxWidth: "50%",
+        height: "auto",
+        objectFit: "contain",
+        zIndex: 1,                // 렉스보다 뒤
+      }}
+    />
+  )}
+
+  <div style={{ position: "relative", width: "66.2%", flexShrink: 0, zIndex: 2 }}>
+    <img
+      src="lex_clothes_background/original_lex_with_shadow.svg"
+      alt=""
+      draggable="false"
+      style={{
+        display: "block",
+        width: "100%",
+        height: 260,
+        objectFit: "contain",
+      }}
+    />
+
+    {draftOutfit.top && (
+      <img
+        src={getItemImagePath(draftOutfit.top)}
+        alt={draftOutfit.top.name}
+        draggable="false"
         style={{
           position: "absolute",
-          left: "50%",
-          top: "calc(70px + 120px + 10px)",
-          transform: "translateX(-50%)",
-          zIndex: 2,
+          left: "calc(50% - 34.6%)",
+          top: "20px",
+          width: "30.8%",
+          height: "80px",
+          objectFit: "contain",
           pointerEvents: "none",
         }}
-      >
-        <img
-          src="lex_clothes_background/original_lex_with_shadow.svg"
-          alt=""
-          draggable="false"
-          style={{
-            display: "block",
-            width: "66.2%",
-            height: 260,
-            objectFit: "contain",
-            margin: "0 auto",
-          }}
-        />
+      />
+    )}
 
-        {draftOutfit.top && (
-          <img
-            src={getItemImagePath(draftOutfit.top)}
-            alt={draftOutfit.top.name}
-            draggable="false"
-            style={{
-              position: "absolute",
-              left: "calc(50% - 22.9%)",
-              top: "20px",
-              width: "20.4%",
-              height: "80px",
-              objectFit: "contain",
-              pointerEvents: "none",
-            }}
-          />
-        )}
-
-        {draftOutfit.bottom && (
-          <img
-            src={getItemImagePath(draftOutfit.bottom)}
-            alt={draftOutfit.bottom.name}
-            draggable="false"
-            style={{
-              position: "absolute",
-              right: "calc(50% - 22.9%)",
-              top: "130px",
-              width: "20.4%",
-              height: "80px",
-              objectFit: "contain",
-              pointerEvents: "none",
-            }}
-          />
-        )}
-
-        {draftOutfit.accessory && (
-          <img
-            src={getItemImagePath(draftOutfit.accessory)}
-            alt={draftOutfit.accessory.name}
-            draggable="false"
-            style={{
-              position: "absolute",
-              left: "calc(50% - 22.9%)",
-              bottom: "20px",
-              width: "20.4%",
-              height: "80px",
-              objectFit: "contain",
-              pointerEvents: "none",
-            }}
-          />
-        )}
-      </div>
-
-      {errorOverlayImage && (
-        <div key={errorOverlayItemId} className="error-overlay" role="status" aria-live="polite">
-          <img src={errorOverlayImage} alt="오류 아이템" draggable="false" />
-        </div>
-      )}
-
-      <div
+    {draftOutfit.bottom && (
+      <img
+        src={getItemImagePath(draftOutfit.bottom)}
+        alt={draftOutfit.bottom.name}
+        draggable="false"
         style={{
           position: "absolute",
-          left: "50%",
-          transform: "translateX(-50%)",
-          bottom: 92,
-          zIndex: 4,
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          gap: 8,
-          width: "calc(100% - 10.2%)",
-          maxWidth: "91.6%",
+          right: "calc(50% - 34.6%)",
+          top: "130px",
+          width: "30.8%",
+          height: "80px",
+          objectFit: "contain",
           pointerEvents: "none",
         }}
-      >
-        <div style={{ display: "flex", justifyContent: "center", gap: "1.44%", alignItems: "flex-end", pointerEvents: "auto" }}>
-          {categoryButtons.map((button) => {
-            const isSelected = selectedCategory === button.key;
-            const src = isSelected ? button.chooseSvg : button.defaultSvg;
-            return (
-              <button
-                key={button.key}
-                type="button"
-                onClick={() => setSelectedCategory(button.key)}
-                aria-label={button.label}
-                style={{
-                  width: "27.5%",
-                  height: 54,
-                  padding: 0,
-                  border: "none",
-                  background: "transparent",
-                  cursor: "pointer",
-                }}
-              >
-                <img
-                  src={src}
-                  alt={button.label}
-                  draggable="false"
-                  style={{
-                    display: "block",
-                    width: "100%",
-                    height: 54,
-                    objectFit: "contain",
-                  }}
-                />
-              </button>
-            );
-          })}
-        </div>
+      />
+    )}
 
-        <div
-          style={{
-            width: "calc(100% - 7.6%)",
-            display: "grid",
-            gridTemplateColumns: "1fr 1fr",
-            gap: 10,
-            pointerEvents: "auto",
-          }}
-        >
-          {visibleItems.map((item) => {
-            const isSelectedItem = draftOutfit?.[currentOutfitKey]?.id === item.id;
-            const isErrorItem = Boolean(getErrorAssetPath(item.id));
-            const isErrorActiveItem = errorActiveItemId === item.id;
-            return (
-              <button
-                key={item.id}
-                type="button"
-                className={`item-card${isErrorActiveItem ? " error-active" : ""}`}
-                onClick={() => handleItemSelect(item)}
-                aria-pressed={isSelectedItem}
-                style={{
-                  minHeight: 86,
-                  justifyContent: "center",
-                  borderColor: "#4AB1E7",
-                  backgroundColor: isErrorActiveItem ? "#D9D9D9" : (isSelectedItem ? "#AFD9FD" : "#E3E9EE"),
-                  opacity: isErrorItem ? 1 : 1,
-                }}
-                aria-label={`${item.name} 선택`}
-              >
-                <img className="item-emoji" aria-hidden="true" src={getItemImagePath(item)} alt="" />
-                <span className="item-name">{item.name}</span>
-              </button>
-            );
-          })}
-        </div>
-      </div>
+    {draftOutfit.accessory && (
+      <img
+        src={getItemImagePath(draftOutfit.accessory)}
+        alt={draftOutfit.accessory.name}
+        draggable="false"
+        style={{
+          position: "absolute",
+          left: "calc(50% - 34.6%)",
+          bottom: "20px",
+          width: "30.8%",
+          height: "80px",
+          objectFit: "contain",
+          pointerEvents: "none",
+        }}
+      />
+    )}
+  </div>
+</div>
+
+  {/* 카테고리 버튼 + 아이템 그리드 (기존과 동일, gap:8만 유지) */}
+  <div
+    style={{
+      display: "flex",
+      flexDirection: "column",
+      alignItems: "center",
+      gap: 8,
+      width: "100%",
+      pointerEvents: "none",
+    }}
+  >
+    <div style={{ display: "flex", justifyContent: "center", gap: "1.44%", alignItems: "flex-end", pointerEvents: "auto" }}>
+      {categoryButtons.map((button) => {
+        const isSelected = selectedCategory === button.key;
+        const src = isSelected ? button.chooseSvg : button.defaultSvg;
+        return (
+          <button
+            key={button.key}
+            type="button"
+            onClick={() => setSelectedCategory(button.key)}
+            aria-label={button.label}
+            style={{
+              width: "27.5%",
+              height: 54,
+              padding: 0,
+              border: "none",
+              background: "transparent",
+              cursor: "pointer",
+            }}
+          >
+            <img
+              src={src}
+              alt={button.label}
+              draggable="false"
+              style={{
+                display: "block",
+                width: "100%",
+                height: 54,
+                objectFit: "contain",
+              }}
+            />
+          </button>
+        );
+      })}
+    </div>
+
+    <div
+      style={{
+        width: "78%",
+        display: "grid",
+        gridTemplateColumns: "1fr 1fr",
+        gap: 10,
+        pointerEvents: "auto",
+        margin: "0 auto", 
+      }}
+    >
+      {visibleItems.map((item) => {
+        const isSelectedItem = draftOutfit?.[currentOutfitKey]?.id === item.id;
+        const isErrorItem = Boolean(getErrorAssetPath(item.id));
+        const isErrorActiveItem = errorActiveItemId === item.id;
+        return (
+          <button
+            key={item.id}
+            type="button"
+            className={`item-card${isErrorActiveItem ? " error-active" : ""}`}
+            onClick={() => handleItemSelect(item)}
+            aria-pressed={isSelectedItem}
+            style={{
+              minHeight: 70,
+              justifyContent: "center",
+              borderColor: "#4AB1E7",
+              backgroundColor: isErrorActiveItem ? "#D9D9D9" : (isSelectedItem ? "#AFD9FD" : "#E3E9EE"),
+              opacity: isErrorItem ? 1 : 1,
+            }}
+            aria-label={`${item.name} 선택`}
+          >
+            <img className="item-emoji" aria-hidden="true" src={getItemImagePath(item)} alt="" />
+            <span className="item-name">{item.name}</span>
+          </button>
+        );
+      })}
+    </div>
+  </div>
+</div>
 
       <button
         className="btn btn-primary"
