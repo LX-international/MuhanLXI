@@ -448,7 +448,7 @@ input[type=text]:focus-visible{ outline:3px solid var(--blue); outline-offset:2p
 }
 
 .toast-popup{
-  position:fixed; left:50%; top:38%; transform:translate(-50%,-50%); z-index:60;
+  position:absolute; left:50%; top:38%; transform:translate(-50%,-50%); z-index:60; max-width: 393;
   animation: shakepop 1.5s ease forwards;
   max-width:90vw;
 }
@@ -937,7 +937,7 @@ function StartScreen({ onStart }){
           display: "block",
           width: "auto",
           height: "auto",
-          maxWidth: "74%",
+          maxWidth: "40%",
           zIndex: 2,
         }}
       />
@@ -948,7 +948,7 @@ function StartScreen({ onStart }){
         style={{
           position: "absolute",
           left: "50%",
-          bottom: 10,
+          bottom: 1,
           transform: "translateX(-50%)",
           border: "none",
           background: "transparent",
@@ -1052,7 +1052,7 @@ function NameWarnPopup({ onDone }){
 
   return (
     <div className="toast-popup" role="status" aria-live="polite">
-      <img src="name/noName.svg" alt="이름을 입력해 주세요" style={{ display: "block", width: "auto", height: "auto" }} />
+      <img src="name/noName.svg" alt="이름을 입력해 주세요" style={{ display: "block", width: "auto", height: "auto"}} />
     </div>
   );
 }
@@ -1093,7 +1093,7 @@ function NameInputScreen({ name, setName, onSubmit }){
         style={{
           position: "absolute",
           left: "50%",
-          bottom: 196,
+          bottom: "23%",
           transform: "translateX(-50%)",
           display: "block",
           width: "auto",
@@ -1114,7 +1114,7 @@ function NameInputScreen({ name, setName, onSubmit }){
           display: "block",
           width: "auto",
           height: "auto",
-          maxWidth: "74%",
+          maxWidth: "40%",
           zIndex: 2,
         }}
       />
@@ -1200,7 +1200,7 @@ function MissionIntroScreen({ onDraw }){
       className="screen scene-fade"
       style={{
         position: "relative",
-        backgroundImage: 'url("missionCard/missionCard_1.svg")',
+        backgroundImage: 'url("missionCard/missionCard_2.svg")',
         backgroundSize: "cover",
         backgroundPosition: "center",
         backgroundRepeat: "no-repeat",
@@ -1208,6 +1208,23 @@ function MissionIntroScreen({ onDraw }){
         overflow: "hidden",
       }}
     >
+    <img
+            src="missionCard/missionCard_info.svg"
+            alt="미션 카드 안내"
+            draggable="false"
+            style={{
+              position: "absolute",
+              left: "50%",
+              bottom: "15%",
+              transform: "translateX(-50%)",
+              display: "block",
+              width: "auto",
+              height: "auto",
+              maxWidth: "110%",
+              zIndex: 2,
+            }}
+          />
+
       <button
         type="button"
         onClick={onDraw}
