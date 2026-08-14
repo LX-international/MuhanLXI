@@ -359,8 +359,8 @@ input[type=text]:focus-visible{ outline:3px solid var(--blue); outline-offset:2p
   border:3px solid var(--ink);
   border-radius:14px;
   background:#fff;
-  padding:10px 6px;
-  display:flex; flex-direction:column; align-items:center; gap:6px;
+  padding:3px 3px;
+  display:flex; flex-direction:column; align-items:center; gap:1px;
   cursor:pointer;
   min-height:45px;
   position:relative;
@@ -387,7 +387,7 @@ input[type=text]:focus-visible{ outline:3px solid var(--blue); outline-offset:2p
 .selected-slots{
   display:grid;
   grid-template-columns:repeat(3, minmax(0, 1fr));
-  gap:10px;
+  gap:5px;
   width:100%;
 }
 .selected-slot{
@@ -452,6 +452,7 @@ input[type=text]:focus-visible{ outline:3px solid var(--blue); outline-offset:2p
   animation: shakepop 1.5s ease forwards;
   max-width:90vw;
 }
+
 .error-overlay{
   position:fixed; left:50%; top:50%; transform:translate(-50%,-50%);
   width:358px; height:358px; max-width:calc(100vw - 24px); max-height:calc(100vh - 24px);
@@ -581,6 +582,34 @@ const ERROR_SVG_FILES = [
   "error_mission3_t2.svg",
   "error_mission3_t4.svg",
 ];
+
+const RIGHT_LEX_ASSET_NAMES = [
+  "mission1_t1_b1_a1.svg",
+  "mission1_t1_b1_a2.svg",
+  "mission1_t1_b4_a1.svg",
+  "mission1_t1_b4_a2.svg",
+  "mission1_t2_b1_a1.svg",
+  "mission1_t2_b1_a2.svg",
+  "mission1_t2_b4_a1.svg",
+  "mission1_t2_b4_a2.svg",
+  "mission2_t3_b2_a1.svg",
+  "mission2_t3_b2_a4.svg",
+  "mission2_t3_b3_a1.svg",
+  "mission2_t3_b3_a4.svg",
+  "mission2_t4_b2_a1.svg",
+  "mission2_t4_b2_a4.svg",
+  "mission2_t4_b3_a1.svg",
+  "mission2_t4_b3_a4.svg",
+  "mission3_t1_b1_a1.svg",
+  "mission3_t1_b1_a3.svg",
+  "mission3_t1_b3_a1.svg",
+  "mission3_t1_b3_a3.svg",
+  "mission3_t3_b1_a1.svg",
+  "mission3_t3_b1_a3.svg",
+  "mission3_t3_b3_a1.svg",
+  "mission3_t3_b3_a3.svg",
+];
+
 const ERROR_SVG_SET = new Set(ERROR_SVG_FILES);
 const ERROR_ASSET_PREFIXES = ["lex_clothes", "clothes"];
 
@@ -684,6 +713,83 @@ const MISSIONS = [
     },
   },
 ];
+
+const GAME_IMAGE_PATHS = [
+  "logo/무한LX상사 로고.png",
+  "logo/미션카드.png",
+  "logo/start_lex.svg",
+  "logo/lex.svg",
+  "logo/logo.svg",
+  "logo/인도네시아 광산.png",
+  "logo/해외 바이어 미팅.png",
+  "logo/탄소 pt.png",
+  "name/noName.svg",
+  "name/name.svg",
+  "intro/start_background.svg",
+  "intro/btn_start.svg",
+  "intro/intro_1.svg",
+  "intro/intro_2.svg",
+  "intro/intro_3.svg",
+  "intro/intro_4.svg",
+  "intro/intro_5.svg",
+  "missionCard/missionCard.svg",
+  "missionCard/missionCard_2.svg",
+  "missionCard/hey.svg",
+  "missionCard/missionCard_info.svg",
+  "missionCard/missionShow_1.svg",
+  "missionCard/missionShow_2.svg",
+  "missionCard/missionShow_3.svg",
+  "lex_clothes_background/global_buyer_meeting_tag.svg",
+  "lex_clothes_background/eco_pt_tag.svg",
+  "lex_clothes_background/indonesia_mine_trip_tag.svg",
+  "lex_clothes_background/global_buyer_meeting_command.svg",
+  "lex_clothes_background/eco_pt_command.svg",
+  "lex_clothes_background/indonesia_mine_trip_command.svg",
+  "lex_clothes_background/button_top.svg",
+  "lex_clothes_background/button_top_choose.svg",
+  "lex_clothes_background/button_bottom.svg",
+  "lex_clothes_background/button_bottom_choose.svg",
+  "lex_clothes_background/button_acce.svg",
+  "lex_clothes_background/button_acce_choose.svg",
+  "lex_clothes_background/choose_cloth_background.svg",
+  "lex_clothes_background/original_lex_with_shadow.svg",
+  "right_lex_clothes/check_outfit.svg",
+  "result/result_bad.svg",
+  "result/result_good.svg",
+  "result/water.png",
+  "result/finish_bg.svg",
+  "result/finish_ment.svg",
+  "result/finalStory_1.svg",
+  "result/finalStory_1_ment.svg",
+  "result/finalStory_2.svg",
+  "result/finalStory_2_ment.svg",
+  "result/finalStory_3.svg",
+  "result/finalStory_3_ment.svg",
+  "result/finalStory_3_ment.png",
+  ...RIGHT_LEX_ASSET_NAMES.map((name) => `right_lex_clothes/${name}`),
+  ...ERROR_SVG_FILES.flatMap((file) => [`lex_clothes/${file}`]),
+  ...MISSIONS.flatMap((mission) => [
+    mission.cardImage,
+    ...mission.items.top.map((item) => item.image),
+    ...mission.items.bottom.map((item) => item.image),
+    ...mission.items.accessory.map((item) => item.image),
+  ]),
+  ...Object.values(window.__MISSION_IMAGES__ || {}).filter((src) => typeof src === "string" && !src.startsWith("data:")),
+  ...Object.values(window.__IMAGES__ || {}).filter((src) => typeof src === "string" && !src.startsWith("data:")),
+].filter(Boolean);
+
+const PRELOAD_IMAGE_PATHS = Array.from(new Set(GAME_IMAGE_PATHS.map((src) => encodeURI(decodeURIComponent(String(src).trim()))).filter(Boolean)));
+
+function preloadGameImages() {
+  PRELOAD_IMAGE_PATHS.forEach((src) => {
+    try {
+      const image = new Image();
+      image.src = src;
+    } catch (error) {
+      // 브라우저가 지원하지 않는 경우는 조용히 건너뜀
+    }
+  });
+}
 
 const INTRO_LINES = [
   "드디어 입사했다!",
@@ -1208,6 +1314,9 @@ function MissionIntroScreen({ onDraw }){
         overflow: "hidden",
       }}
     >
+    <div className="toast-popup" role="status" aria-live="polite">
+      <img src="missionCard/hey.svg" alt="어이 신입" style={{ display: "block", width: "auto", height: "auto"}} />
+    </div>
     <img
             src="missionCard/missionCard_info.svg"
             alt="미션 카드 안내"
@@ -1467,7 +1576,7 @@ function DressUpScreen({ name, mission, outfit, onSubmit }){
           style={{
             position: "absolute",
             left: "calc(100% - 3.8%)",
-            bottom: 524,
+            bottom: 470,
             transform: "translateX(-100%)",
             width: "auto",
             maxWidth: "38%",
@@ -1485,7 +1594,7 @@ function DressUpScreen({ name, mission, outfit, onSubmit }){
           draggable="false"
           style={{
             position: "absolute",
-            top: 70,
+            top: 50,
             left: "50%",
             transform: "translateX(-50%)",
             width: "auto",
@@ -1497,23 +1606,26 @@ function DressUpScreen({ name, mission, outfit, onSubmit }){
         />
       )}
 
+      
+
       <div
         style={{
           position: "absolute",
           left: "50%",
-          top: "calc(70px + 120px + 10px)",
+          top: "20%",
           transform: "translateX(-50%)",
           zIndex: 2,
           pointerEvents: "none",
         }}
       >
-        <img
+      <img
           src="lex_clothes_background/original_lex_with_shadow.svg"
           alt=""
           draggable="false"
           style={{
             display: "block",
-            width: "100%",
+            
+            width: "95%",
             height: 260,
             objectFit: "contain",
             margin: "0 auto",
@@ -1650,7 +1762,7 @@ function DressUpScreen({ name, mission, outfit, onSubmit }){
                 onClick={() => handleItemSelect(item)}
                 aria-pressed={isSelectedItem}
                 style={{
-                  minHeight: 86,
+                  minHeight: 60,
                   justifyContent: "center",
                   borderColor: "#4AB1E7",
                   backgroundColor: isErrorActiveItem ? "#D9D9D9" : (isSelectedItem ? "#AFD9FD" : "#E3E9EE"),
@@ -2091,6 +2203,10 @@ function App(){
   const [pendingOutfit, setPendingOutfit] = useState(null);
   const [confirmOpen, setConfirmOpen] = useState(false);
   const transitioning = useRef(false);
+
+  useEffect(() => {
+    preloadGameImages();
+  }, []);
 
   const goTo = (next) => {
     if (transitioning.current) return;
