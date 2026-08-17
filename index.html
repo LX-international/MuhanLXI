@@ -1839,7 +1839,6 @@ function Story1({ name, mission, outfit, onNext }){
           className="result-water"
           draggable="false"
           aria-hidden="true"
-          
         />
       )}
 
@@ -1859,6 +1858,8 @@ function Story1({ name, mission, outfit, onNext }){
             pointerEvents: "none",   // 클릭 방해 방지
           }}
         >
+
+        
           <img
             src={finalLexImage}
             alt="선택한 옷을 입은 렉스"
@@ -1868,7 +1869,7 @@ function Story1({ name, mission, outfit, onNext }){
         </div>
       )}
 
-      <div style={{ position: "absolute", left: "50%", bottom: 200, transform: "translateX(-50%)", width: 362, height: 182, display: "flex", justifyContent: "center", alignItems: "center" }}>
+      <div style={{ position: "absolute", left: "50%", bottom: 150, transform: "translateX(-50%)", width: 362, height: 182, display: "flex", justifyContent: "center", alignItems: "center", zIndex: 5 }}>
         <img
           src={resultImage}
           alt={showBad ? "결과 화면 - 나쁨" : "결과 화면 - 좋음"}
@@ -1877,7 +1878,7 @@ function Story1({ name, mission, outfit, onNext }){
         />
       </div>
 
-      <div style={{ position: "absolute", left: "50%", bottom: 36, transform: "translateX(-50%)", width: 362, display: "flex", justifyContent: "center" }}>
+      <div style={{ position: "absolute", left: "50%", bottom: 36, transform: "translateX(-50%)", width: 362, display: "flex", justifyContent: "center", zIndex: 2 }}>
         <button className="btn btn-primary" style={{ width: "100%" }} onClick={handleNext} aria-label="넘어가기">
           넘어가기
         </button>
@@ -2018,6 +2019,25 @@ function FinalScreen({ name, onRestart }){
           style={{ width: "120%", height: "auto", display: "block" }}
           draggable="false"
         />
+      </div>
+
+      <div
+  style={{
+    position: "absolute",
+    bottom: 100,
+    left: "50%",                      // ★ 추가: transform의 기준점
+    transform: "translateX(-50%)",    // 가운데 정렬은 여기서만 담당
+    width: "100%",                     // ★ 추가: finish_ment div와 동일한 폭 기준(원하는 값으로 조정)
+    zIndex: 1,
+    pointerEvents: "none",
+  }}
+>
+  <img
+    src="result/finish_ment_2.svg"
+    alt=""
+    style={{ height: "auto", width: "90%", display: "block" }}  
+    draggable="false"
+  />
 </div>
 
       <div style={{ position: "absolute", left: 0, right: 0, top: "auto", bottom: 36, zIndex: 1, width: "100%", padding: "0 20px", display: "flex", gap: 10, justifyContent: "center", flexWrap: "wrap" }}>
