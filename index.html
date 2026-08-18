@@ -1563,11 +1563,11 @@ function DressUpScreen({ name, mission, outfit, onSubmit }){
   const TALL_SCREEN_BREAKPOINT = 830; // 이 값 이상이면 "큰 화면"으로 판단 (원하는 값으로 조정)
   const isTallScreen = viewportHeight >= TALL_SCREEN_BREAKPOINT;const BASE_LEX_WIDTH = 260;
   const BASE_LEX_HEIGHT = 200;
-  const BASE_LEX_BOTTOM = 320;
+  const BASE_LEX_BOTTOM = 300;
   const BASE_ITEM_WIDTH_PCT = 20.4; // 그대로 %, 부모 폭에 비례해서 자동 스케일됨
   const BASE_ITEM_HEIGHT = 80;
   const BASE_TOP_OFFSET = 20;
-  const BASE_BOTTOM_TOP_OFFSET = 120;
+  const BASE_BOTTOM_TOP_OFFSET = 80;
   const BASE_ACCE_BOTTOM_OFFSET = 20;
   
 
@@ -1777,7 +1777,7 @@ function DressUpScreen({ name, mission, outfit, onSubmit }){
                 draggable="false"
                 style={{
                   position: "absolute",
-                  right: "calc(50% - 19%)",
+                  right: "calc(50% - 10%)",
                   top: bottomTopOffset,
                   width: `${BASE_ITEM_WIDTH_PCT}%`,
                   height: itemHeight,
@@ -2189,32 +2189,48 @@ function Story2({ onNext }){
 /* ============================================================
    최종 완료 화면
    ============================================================ */
-function FinalScreen({ name, onRestart }){
+function FinalScreen({ name, onRestart }) {
   const [isSaving, setIsSaving] = useState(false);
   const [savedUrl, setSavedUrl] = useState(null);
   const [saveError, setSaveError] = useState(false);
-  const captureRef = useRef(null);
+  const captureRef = useRef(null); // 캡처용이 아니라면 이제 필요 없지만, 레이아웃 유지를 위해 남겨둬도 무방
+
+  const FINISH_IMAGE_PATH = "result/real_finish.png";
 
   const handleSave = () => {
-    if (!window.html2canvas || !captureRef.current) return;
     setIsSaving(true);
     setSaveError(false);
-    window.html2canvas(captureRef.current, { backgroundColor: "#fff", scale: 2, useCORS: true }).then((canvas) => {
-      const dataUrl = canvas.toDataURL("image/png");
-      setSavedUrl(dataUrl);
-      try {
-        const link = document.createElement("a");
-        link.download = `LXI_완료화면_${name || "신입"}.png`;
-        link.href = dataUrl;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-      } catch (e) {}
-      setIsSaving(false);
-    }).catch(() => {
-      setIsSaving(false);
-      setSaveError(true);
-    });
+
+    fetch(FINISH_IMAGE_PATH)
+      .then((res) => {
+        if (!res.ok) throw new Error("이미지를 불러오지 못했습니다.");
+        return res.blob();
+      })
+      .then((blob) => {
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          const dataUrl = reader.result;
+          setSavedUrl(dataUrl);
+          try {
+            const link = document.createElement("a");
+            link.download = `LXI_완료화면_${name || "신입"}.png`;
+            link.href = dataUrl;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+          } catch (e) {}
+          setIsSaving(false);
+        };
+        reader.onerror = () => {
+          setIsSaving(false);
+          setSaveError(true);
+        };
+        reader.readAsDataURL(blob);
+      })
+      .catch(() => {
+        setIsSaving(false);
+        setSaveError(true);
+      });
   };
 
   return (
