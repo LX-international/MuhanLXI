@@ -1478,6 +1478,24 @@ function MissionCardDraw({ mission, onNext }){
 /* ============================================================
    화면 7. 렉스 꾸미기
    ============================================================ */
+
+function useViewportHeight() {
+  const [height, setHeight] = useState(
+    typeof window !== "undefined" ? window.innerHeight : 800
+  );
+  useEffect(() => {
+    const handleResize = () => setHeight(window.innerHeight);
+    window.addEventListener("resize", handleResize);
+    window.addEventListener("orientationchange", handleResize);
+    return () => {
+      window.removeEventListener("resize", handleResize);
+      window.removeEventListener("orientationchange", handleResize);
+    };
+  }, []);
+  return height;
+}
+
+
 const CATS = [
   { key: "top", label: "상의" },
   { key: "bottom", label: "하의" },
@@ -1490,6 +1508,31 @@ function DressUpScreen({ name, mission, outfit, onSubmit }){
   const [errorActiveItemId, setErrorActiveItemId] = useState(null);
   const [errorOverlayItemId, setErrorOverlayItemId] = useState(null);
   const errorTimeoutRef = useRef(null);
+
+  const viewportHeight = useViewportHeight();
+  const TALL_SCREEN_BREAKPOINT = 830; // 이 값 이상이면 "큰 화면"으로 판단 (원하는 값으로 조정)
+  const isTallScreen = viewportHeight >= TALL_SCREEN_BREAKPOINT;const BASE_LEX_WIDTH = 260;
+  const BASE_LEX_HEIGHT = 200;
+  const BASE_LEX_BOTTOM = 320;
+  const BASE_ITEM_WIDTH_PCT = 20.4; // 그대로 %, 부모 폭에 비례해서 자동 스케일됨
+  const BASE_ITEM_HEIGHT = 80;
+  const BASE_TOP_OFFSET = 20;
+  const BASE_BOTTOM_TOP_OFFSET = 120;
+  const BASE_ACCE_BOTTOM_OFFSET = 20;
+  
+
+  // 큰 화면일 때 렉스 크기/위치
+  const lexWidth = isTallScreen ? 340 : BASE_LEX_WIDTH;
+  const lexHeight = isTallScreen ? 320 : BASE_LEX_HEIGHT;
+  const lexWrapperBottom = isTallScreen ? 340 : BASE_LEX_BOTTOM;
+
+  // 렉스가 커진 배율(scale) — 옷 아이템 세로 크기/오프셋에 동일 적용
+  const scale = lexWidth / BASE_LEX_WIDTH;
+
+  const itemHeight = BASE_ITEM_HEIGHT * scale;
+  const topOffset = BASE_TOP_OFFSET * scale;
+  const bottomTopOffset = BASE_BOTTOM_TOP_OFFSET * scale;
+  const acceBottomOffset = BASE_ACCE_BOTTOM_OFFSET * scale;
 
   const missionTagImage = mission?.id === "mission1"
     ? "lex_clothes_background/global_buyer_meeting_tag.svg"
@@ -1570,23 +1613,23 @@ function DressUpScreen({ name, mission, outfit, onSubmit }){
       }}
     >
       {missionCommandImage && (
-        <img
-          src={missionCommandImage}
-          alt=""
-          draggable="false"
-          style={{
-            position: "absolute",
-            left: "calc(100% - 3.8%)",
-            bottom: 460,
-            transform: "translateX(-100%)",
-            width: "auto",
-            maxWidth: "38%",
-            height: "auto",
-            zIndex: 0,
-            pointerEvents: "none",
-          }}
-        />
-      )}
+  <img
+    src={missionCommandImage}
+    alt=""
+    draggable="false"
+    style={{
+      position: "absolute",
+      left: "calc(100% - 3.8%)",
+      bottom: isTallScreen ? 550 : 460, // 큰 화면일 때 40px 위로
+      transform: "translateX(-100%)",
+      width: "auto",
+      maxWidth: "38%",
+      height: "auto",
+      zIndex: 0,
+      pointerEvents: "none",
+    }}
+  />
+)}
 
       {missionTagImage && (
         <img
@@ -1633,81 +1676,85 @@ function DressUpScreen({ name, mission, outfit, onSubmit }){
           pointerEvents: "none",
         }}
       >
-      <div
-        style={{
-          position: "absolute",
-          left: "50%",
-          bottom: 280,
-          transform: "translateX(-50%)",
-          zIndex: 2,
-          pointerEvents: "none",
-        }}
-      >
-      <img
-          src="lex_clothes_background/original_lex_with_shadow.svg"
-          alt=""
-          draggable="false"
+        {/* ▼ 렉스 래퍼: translateX 대신 flex로 확실하게 중앙정렬 ▼ */}
+        <div
           style={{
-            display: "block",
-            
-            width: "100%",
-            height: 260,
-            objectFit: "contain",
-            margin: "0 auto",
+            position: "absolute",
+            left: 0,
+            right: 0,
+            bottom: lexWrapperBottom,
+            display: "flex",
+            justifyContent: "center", // 좌우 중앙 정렬을 flex가 보장
+            zIndex: 2,
+            pointerEvents: "none",
           }}
-        />
+        >
+          <div style={{ position: "relative", width: lexWidth, height: lexHeight }}>
+            <img
+              src="lex_clothes_background/original_lex_with_shadow.svg"
+              alt=""
+              draggable="false"
+              style={{
+                display: "block",
+                width: "100%",
+                height: "100%",
+                objectFit: "contain",
+                objectPosition: "center",
+              }}
+            />
 
-        {draftOutfit.top && (
-          <img
-            src={getItemImagePath(draftOutfit.top)}
-            alt={draftOutfit.top.name}
-            draggable="false"
-            style={{
-              position: "absolute",
-              left: "calc(50% - 22.9%)",
-              top: "20px",
-              width: "20.4%",
-              height: "80px",
-              objectFit: "contain",
-              pointerEvents: "none",
-            }}
-          />
-        )}
+            {draftOutfit.top && (
+              <img
+                src={getItemImagePath(draftOutfit.top)}
+                alt={draftOutfit.top.name}
+                draggable="false"
+                style={{
+                  position: "absolute",
+                  left: "calc(50% - 28%)",
+                  top: topOffset,
+                  width: `${BASE_ITEM_WIDTH_PCT}%`,
+                  height: itemHeight,
+                  objectFit: "contain",
+                  pointerEvents: "none",
+                }}
+              />
+            )}
 
-        {draftOutfit.bottom && (
-          <img
-            src={getItemImagePath(draftOutfit.bottom)}
-            alt={draftOutfit.bottom.name}
-            draggable="false"
-            style={{
-              position: "absolute",
-              right: "calc(50% - 22.9%)",
-              top: "130px",
-              width: "20.4%",
-              height: "80px",
-              objectFit: "contain",
-              pointerEvents: "none",
-            }}
-          />
-        )}
+            {draftOutfit.bottom && (
+              <img
+                src={getItemImagePath(draftOutfit.bottom)}
+                alt={draftOutfit.bottom.name}
+                draggable="false"
+                style={{
+                  position: "absolute",
+                  right: "calc(50% - 19%)",
+                  top: bottomTopOffset,
+                  width: `${BASE_ITEM_WIDTH_PCT}%`,
+                  height: itemHeight,
+                  objectFit: "contain",
+                  pointerEvents: "none",
+                }}
+              />
+            )}
 
-        {draftOutfit.accessory && (
-          <img
-            src={getItemImagePath(draftOutfit.accessory)}
-            alt={draftOutfit.accessory.name}
-            draggable="false"
-            style={{
-              position: "absolute",
-              left: "calc(50% - 22.9%)",
-              bottom: "20px",
-              width: "20.4%",
-              height: "80px",
-              objectFit: "contain",
-              pointerEvents: "none",
-            }}
-          />
-        )}
-      </div>
+            {draftOutfit.accessory && (
+              <img
+                src={getItemImagePath(draftOutfit.accessory)}
+                alt={draftOutfit.accessory.name}
+                draggable="false"
+                style={{
+                  position: "absolute",
+                  left: "calc(50% - 25%)",
+                  bottom: acceBottomOffset,
+                  width: `${BASE_ITEM_WIDTH_PCT}%`,
+                  height: itemHeight,
+                  objectFit: "contain",
+                  pointerEvents: "none",
+                }}
+              />
+            )}
+          </div>
+        </div>
         <div style={{ display: "flex", justifyContent: "center", gap: "1.44%", alignItems: "flex-end", pointerEvents: "auto" }}>
           {categoryButtons.map((button) => {
             const isSelected = selectedCategory === button.key;
@@ -1936,6 +1983,13 @@ function Story1({ name, mission, outfit, onNext }){
   const resultImage = showBad ? "result/result_bad.svg" : "result/result_good.svg";
   const finalLexImage = getFinalRightLexAssetPath(mission, outfit); // ★ 추가: 선택한 조합의 캐릭터 이미지
   
+ const viewportHeight = useViewportHeight();
+  const SMALL_SCREEN_BREAKPOINT = 790; // 이 값보다 작으면 "작은 화면"으로 판단, 필요시 조정
+  const isSmallScreen = viewportHeight < SMALL_SCREEN_BREAKPOINT;
+
+  // water.svg를 얼마나 아래로 내릴지 (기존 CSS 위치 기준 추가 오프셋)
+  const waterOffsetY = isSmallScreen ? 80 : 0; // px 단위, 원하는 값으로 조정
+
   const handleNext = () => {
     if (!showBad) {
       setShowBad(true);
@@ -1970,6 +2024,7 @@ function Story1({ name, mission, outfit, onNext }){
           className="result-water"
           draggable="false"
           aria-hidden="true"
+           style={{ transform: `translateY(${waterOffsetY}px)` }}
         />
       )}
 
