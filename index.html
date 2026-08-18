@@ -1052,7 +1052,14 @@ function RexCharacter({ src, mood, outfit, size = 260, showOutfitBadges = true }
 /* ============================================================
    화면 0. 게임 시작 화면
    ============================================================ */
-function StartScreen({ onStart }){
+function StartScreen({ onStart }) {
+  const viewportHeight = useViewportHeight();
+  const TALL_SCREEN_BREAKPOINT = 800; // 다른 화면들과 동일 기준 사용, 필요시 조정
+  const isTallScreen = viewportHeight >= TALL_SCREEN_BREAKPOINT;
+
+  const lexMaxWidth = isTallScreen ? "110%" : "94%";
+  const logoMaxWidth = isTallScreen ? "120%" : "40%";
+
   return (
     <div
       className="screen scene-fade"
@@ -1078,7 +1085,7 @@ function StartScreen({ onStart }){
           display: "block",
           width: "auto",
           height: "auto",
-          maxWidth: "94%",
+          maxWidth: lexMaxWidth, // ← 조건부 적용
           zIndex: 2,
         }}
       />
@@ -1094,7 +1101,7 @@ function StartScreen({ onStart }){
           display: "block",
           width: "auto",
           height: "auto",
-          maxWidth: "40%",
+          maxWidth: logoMaxWidth, // ← 조건부 적용
           zIndex: 2,
         }}
       />
